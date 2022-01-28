@@ -1,12 +1,41 @@
 {
   "name": "vite-plugin-css-export",
+  "author": {
+    "name": "shixuanhong"
+  },
+  "description": "A Vite plugin for sharing variables between Javascript and CSS (or Sass, Less, etc.)",
   "version": "0.0.0",
+  "keywords": ["vite","vite-plugin","vite-plugin-css-export"],
+  "license": "MIT",
+  "homepage": "https://github.com/shixuanhong/vite-plugin-css-export#readme",
+  "bugs": {
+    "url": "https://github.com/shixuanhong/vite-plugin-css-export/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shixuanhong/vite-plugin-css-export.git"
+  },
   "scripts": {
     "dev": "vite example",
     "build": "vue-tsc --noEmit && vite build example",
     "build:lib": "unbuild",
     "preview": "vite preview example"
   },
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
   "devDependencies": {
     "@types/node": "^17.0.12",
     "@vitejs/plugin-vue": "^2.0.0",
@@ -24,5 +53,8 @@
   "dependencies": {
     "@rollup/pluginutils": "^4.1.2",
     "postcss": "^8.4.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
