@@ -6,19 +6,20 @@ import { drillDown } from './utils'
 export interface ViteCSSExportPluginOption {
   propertyFilter?: (key: string, value: any) => boolean,
   propertyTransform?: (key: string) => string,
-  additionalData?: CSSExportVariables
+  additionalData?: CSSPropertiesData
 }
 
-export type CSSExportVariables = {
-  [index: string]: CSSExportVariables | string
+export type CSSPropertiesData = {
+  [key: string]: CSSPropertiesData | string
 }
+
 
 const exportRE = /(\?|&)export(?:&|$)/
 const cssLangRE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/
 export const isCSSRequest = (request: string): boolean => cssLangRE.test(request)
 
-function parseCode(cssCode: string): CSSExportVariables {
-  const result: CSSExportVariables = {}
+function parseCode(cssCode: string): CSSPropertiesExportedData {
+  const result: CSSPropertiesData = {}
   parse(cssCode).walkRules(/^:export/, (ruleNode => {
     if (ruleNode.selector === ":export") {
       ruleNode.walkDecls(declNode => {
@@ -33,7 +34,7 @@ function parseCode(cssCode: string): CSSExportVariables {
       })
     }
   }))
-  return result
+  return result as CSSPropertiesExportedData
 }
 
 function hijackCSSPostPlugin(cssPostPlugin: Plugin): void {
