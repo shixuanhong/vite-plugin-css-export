@@ -4,8 +4,12 @@
     "name": "shixuanhong"
   },
   "description": "A Vite plugin for sharing variables between Javascript and CSS (or Sass, Less, etc.)",
-  "version": "0.0.0",
-  "keywords": ["vite","vite-plugin","vite-plugin-css-export"],
+  "version": "0.0.1",
+  "keywords": [
+    "vite",
+    "vite-plugin",
+    "vite-plugin-css-export"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/shixuanhong/vite-plugin-css-export#readme",
   "bugs": {
