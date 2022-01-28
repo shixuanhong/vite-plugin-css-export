@@ -2,6 +2,12 @@
 
 **A Vite plugin for sharing variables between Javascript and CSS.**
 
+<p align="left">
+  <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export.svg" alt="npm package"></a>
+  <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/vite-plugin-css-export.svg" alt="node compatibility"></a>
+</p>
+
+
 This plugin allows you to use a pseudo-class called `:export` in CSS, and properties in this pseudo-class will be exported to Javascript.
 
 Besides that, with the help of Vite, we can use `:export` in .scss, .sass, .less, .styl and .stylus files.
@@ -10,35 +16,35 @@ Besides that, with the help of Vite, we can use `:export` in .scss, .sass, .less
 
 ## Install 💗
 
-``` shell
+```shell
 npm install vite-plugin-css-export -D
 ```
 
 or
 
-``` shell
+```shell
 yarn add vite-plugin-css-export -D
 ```
 
 or
 
-``` shell
+```shell
 pnpm add vite-plugin-css-export -D
 ```
 
 ## Usage ❤️
 
-``` typescript
+```typescript
 // vite.config.ts
 import ViteCSSExportPlugin from "vite-plugin-css-export";
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [ViteCSSExportPlugin()]
-})
+  plugins: [ViteCSSExportPlugin()],
+});
 ```
 
-``` css
+```css
 /* variables.css */
 :root {
   --font-color: #333;
@@ -60,11 +66,11 @@ export default defineConfig({
 }
 ```
 
-``` typescript
+```typescript
 // main.ts
-import variables from './assets/style/variables.css?export'
+import variables from "./assets/style/variables.css?export";
 
-console.log(variables)
+console.log(variables);
 
 // output
 // {
