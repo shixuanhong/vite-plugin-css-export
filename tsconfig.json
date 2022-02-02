@@ -9,6 +9,6 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "DOM"]
+    "lib": ["esnext", "DOM"],
   }
 }

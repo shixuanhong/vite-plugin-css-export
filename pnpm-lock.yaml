@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   '@rollup/pluginutils': ^4.1.2
+  '@types/acorn': ^4.0.6
   '@types/escodegen': ^0.0.7
   '@types/node': ^17.0.12
   '@vitejs/plugin-vue': ^2.0.0
@@ -23,6 +24,7 @@ dependencies:
   postcss: 8.4.5
 
 devDependencies:
+  '@types/acorn': 4.0.6
   '@types/escodegen': 0.0.7
   '@types/node': 17.0.12
   '@vitejs/plugin-vue': 2.1.0_vite@2.7.13+vue@3.2.28
@@ -193,6 +195,12 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.3.1
+
+  /@types/acorn/4.0.6:
+    resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
+    dependencies:
+      '@types/estree': 0.0.50
+    dev: true
 
   /@types/escodegen/0.0.7:
     resolution: {integrity: sha512-46oENdSRNEJXCNrPJoC3vRolZJpfeEm7yvATkd2bCncKFG0PUEyfBCaoacfpcXH4Y5RRuqdVj3J7TI+wwn2SbQ==}

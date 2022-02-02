@@ -1,30 +1,42 @@
 import type { Plugin } from 'vite'
 import { dataToEsm } from '@rollup/pluginutils'
 import { parse } from 'postcss'
-import { drillDown } from './utils'
-import type { Program, BaseNode, Identifier, VariableDeclarator } from 'estree'
+import {
+  drillDown,
+  isProgram,
+  isAcornNode,
+  clearExportNamedDeclaration
+} from './utils'
+import type { Program } from 'estree'
 import escodegen from 'escodegen'
-import acornWalk from 'acorn-walk'
-export interface CSSModuleOption {
+export interface CSSModuleOptions {
   /**
+   *
    * @default false
    * @type {boolean}
-   * @memberof CSSModuleOption
+   * @memberof CSSModuleOptions
    */
   isGlobalCSSModule?: boolean
   /**
    *
    * @default false
    * @type {boolean}
-   * @memberof CSSModuleOption
+   * @memberof CSSModuleOptions
    */
   enableExportMerge?: boolean
+  /**
+   *
+   * @default "sharedData"
+   * @type {string}
+   * @memberof CSSModuleOptions
+   */
+  sharedDataExportName?: string
 }
 export interface ViteCSSExportPluginOptions {
   propertyFilter?: (key: string, value: any) => boolean
   propertyTransform?: (key: string) => string
   additionalData?: SharedCSSData
-  cssModule?: CSSModuleOption
+  cssModule?: CSSModuleOptions
 }
 
 export type SharedCSSData = {
@@ -41,16 +53,14 @@ const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
 const cssModuleRE = new RegExp(`\\.module${cssLangs}`)
 
+const defaultCSSModuleOptions: CSSModuleOptions = {
+  isGlobalCSSModule: false,
+  enableExportMerge: false,
+  sharedDataExportName: 'sharedData'
+}
+
 export const isCSSRequest = (request: string): boolean =>
   cssLangRE.test(request)
-
-function isProgram(obj: acorn.Node | Program): obj is Program {
-  return (<Program>obj).body !== undefined
-}
-
-function isAcornNode(obj: acorn.Node | Program): obj is acorn.Node {
-  return (<acorn.Node>obj).type !== undefined
-}
 
 function parseCode(cssCode: string): ParseResult {
   const sharedData: SharedCSSData = {}
@@ -79,12 +89,15 @@ function parseCode(cssCode: string): ParseResult {
 
 function hijackCSSPostPlugin(
   cssPostPlugin: Plugin,
-  cssModuleOption: CSSModuleOption,
+  cssModuleOptions: CSSModuleOptions,
   parseResultCache: Map<string, ParseResult>
 ): void {
   if (cssPostPlugin.transform) {
-    const { isGlobalCSSModule = false, enableExportMerge = false } =
-      cssModuleOption
+    const {
+      isGlobalCSSModule = false,
+      enableExportMerge = false,
+      sharedDataExportName = 'sharedData'
+    } = cssModuleOptions
     const _transform = cssPostPlugin.transform
     cssPostPlugin.transform = async function (this: any, ...args: any[]) {
       const id = args[1]
@@ -101,40 +114,17 @@ function hijackCSSPostPlugin(
         if (cssModuleRE.test(id) || isGlobalCSSModule) {
           if (enableExportMerge) {
             return result.replace(
-              'export default {',
-              'export const sharedData = ' +
-                JSON.stringify(parseResult?.sharedData) +
-                ';\n' +
-                'export default { sharedData,'
+              /export default\s*\{/,
+              [
+                `export const ${sharedDataExportName} = ${JSON.stringify(
+                  parseResult?.sharedData
+                )}`,
+                `export default { ${sharedDataExportName},`
+              ].join('\n')
             )
           } else {
-            const filteredNodeList: Array<unknown> = []
-            if (isAcornNode(ast)) {
-              acornWalk.simple(ast, {
-                ExportNamedDeclaration(node) {
-                  acornWalk.simple(node, {
-                    VariableDeclarator(variableDeclaratorNode: unknown) {
-                      if (
-                        (<Identifier>(
-                          (<VariableDeclarator>variableDeclaratorNode).id
-                        )).name.indexOf('__vite__') === -1
-                      ) {
-                        filteredNodeList.push(node)
-                      }
-                    }
-                  })
-                },
-                ExportDefaultDeclaration(node) {
-                  filteredNodeList.push(node)
-                }
-              })
-            }
-            if (isProgram(ast)) {
-              ast.body = ast.body.filter(
-                (item) => filteredNodeList.indexOf(item) === -1
-              )
-              ast.body = ast.body.concat(sharedAst.body)
-            }
+            clearExportNamedDeclaration(ast, /^__vite__/)
+            isProgram(ast) && (ast.body = ast.body.concat(sharedAst.body))
           }
           return escodegen.generate(ast)
         } else {
@@ -159,8 +149,7 @@ export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
   const pluginName = 'vite:css-export'
-  const { cssModule = { isGlobalCSSModule: false, enableExportMerge: false } } =
-    options
+  const { cssModule = defaultCSSModuleOptions } = options
   const parseResultCache = new Map<string, ParseResult>()
   let config
   return {
