@@ -1,0 +1,29 @@
+$primary: #409eff;
+
+:share {
+  &.hhhh {
+    yyyyy: 123px;
+  }
+  primary: $primary;
+  test {
+    test: 123px;
+  }
+}
+
+.common {
+  .hahaha {
+    height: 16px;
+  }
+  height: 15px;
+}
+.common {
+  height: 15px;
+}
+.ggg {
+  height: auto;
+}
+
+:export {
+  common: 123px;
+  eee: 123px;
+}
