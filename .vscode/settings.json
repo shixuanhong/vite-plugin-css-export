@@ -1,3 +1,5 @@
 {
-  "scss.lint.unknownProperties": "ignore"
+  "css.lint.unknownProperties": "ignore",
+  "scss.lint.unknownProperties": "ignore",
+  "less.lint.unknownProperties": "ignore"
 }

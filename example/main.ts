@@ -1,7 +1,20 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
-import variables from './assets/style/test.module.scss?export'
+import cssResult from './assets/style/example.css?export'
+import scssResult from './assets/style/example.scss?export'
+import sassResult from './assets/style/example.sass?export'
+import lessResult from './assets/style/example.less?export'
+import stylResult from './assets/style/example.styl?export'
+import stylusResult from './assets/style/example.stylus?export'
+import cssModuleResult from './assets/style/example.module.scss?export'
 
-console.log(variables)
+console.log('.css', cssResult)
+console.log('.scss', scssResult)
+console.log('.sass', sassResult)
+console.log('.less', lessResult)
+console.log('.styl', stylResult)
+console.log('.stylus', stylusResult)
+console.log('css module', cssModuleResult)
+
 createApp(App).mount('#app')

@@ -12,21 +12,27 @@ import type { TransformPluginContext } from 'rollup'
 import escodegen from 'escodegen'
 export interface CSSModuleOptions {
   /**
-   *
+   * Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
+   * 
    * @default false
    * @type {boolean}
    * @memberof CSSModuleOptions
    */
   isGlobalCSSModule?: boolean
   /**
-   *
+   * When value is true, `sharedData` will be merged with the result of CSS Module, 
+   * otherwise only `sharedData` will be exported.
+   * 
+   * `sharedData` is the parsed result of the plugin.
+   * 
    * @default false
    * @type {boolean}
    * @memberof CSSModuleOptions
    */
   enableExportMerge?: boolean
   /**
-   *
+   * When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
+   * 
    * @default "sharedData"
    * @type {string}
    * @memberof CSSModuleOptions
