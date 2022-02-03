@@ -8,7 +8,9 @@ export default defineConfig({
     vue(),
     ViteCSSExportPlugin({
       cssModule: {
-        enableExportMerge: true
+        isGlobalCSSModule: false,
+        enableExportMerge: false,
+        sharedDataExportName: 'cssExportedData'
       }
     }),
     Inspect()

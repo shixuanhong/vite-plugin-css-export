@@ -30,7 +30,7 @@ export function isAcornNode(obj: acorn.Node | Program): obj is acorn.Node {
 
 export function clearExportNamedDeclaration(
   ast: acorn.Node | Program,
-  exclude: RegExp
+  exclude?: RegExp
 ): void {
   const filteredNodeList: Array<unknown> = []
   if (isAcornNode(ast)) {
@@ -41,7 +41,7 @@ export function clearExportNamedDeclaration(
             let name = (<Identifier>(
               (<VariableDeclarator>variableDeclaratorNode).id
             )).name
-            if (exclude.test(name)) {
+            if (exclude && !exclude.test(name)) {
               filteredNodeList.push(node)
             }
           }

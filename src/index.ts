@@ -8,6 +8,7 @@ import {
   clearExportNamedDeclaration
 } from './utils'
 import type { Program } from 'estree'
+import type { TransformPluginContext } from 'rollup'
 import escodegen from 'escodegen'
 export interface CSSModuleOptions {
   /**
@@ -53,6 +54,17 @@ const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
 const cssModuleRE = new RegExp(`\\.module${cssLangs}`)
 
+const matchedList = [':export', ':share']
+const macthingRE = new RegExp(
+  `(^(${matchedList.join('|')})$|^(${matchedList.join('|')})\\s)`
+)
+const errorCharacters = '[~><\\[\\]\\(\\)\\.#\\:\\*]'
+const warnCharacters = '[\\-]'
+const nameErrorValidRE = new RegExp(
+  `(?!${macthingRE.source})${errorCharacters}`
+)
+const nameWarnValidRE = new RegExp(`(?!${macthingRE.source})${warnCharacters}`)
+
 const defaultCSSModuleOptions: CSSModuleOptions = {
   isGlobalCSSModule: false,
   enableExportMerge: false,
@@ -62,21 +74,33 @@ const defaultCSSModuleOptions: CSSModuleOptions = {
 export const isCSSRequest = (request: string): boolean =>
   cssLangRE.test(request)
 
-function parseCode(cssCode: string): ParseResult {
+function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
   const sharedData: SharedCSSData = {}
   let otherCode = ''
-  const matchedList = [':export', ':share']
-  const macthingRE = new RegExp(
-    `(^(${matchedList.join('|')})$|^(${matchedList.join('|')})\\s)`
-  )
+
   parse(cssCode).walkRules((ruleNode) => {
     const selector = ruleNode.selector
     if (macthingRE.test(selector)) {
-      const levels = selector.split(' ').slice(1)
-      const target = drillDown(sharedData, levels)
-      ruleNode.walkDecls((declNode) => {
-        target[declNode.prop] = declNode.value
-      })
+      let nameErrorValidResult = nameErrorValidRE.exec(selector)
+      if (nameErrorValidResult && nameErrorValidResult.length > 0) {
+        this.error(
+          `property names are not allowed to contain characters in this regular expression: ${errorCharacters}`,
+          ruleNode.positionInside(nameErrorValidResult.index)
+        )
+      } else {
+        let nameWarnValidResult = nameWarnValidRE.exec(selector)
+        if (nameWarnValidResult && nameWarnValidResult.length > 0) {
+          this.warn(
+            `property names should not contain the characters in this regular expression: ${warnCharacters}`,
+            ruleNode.positionInside(nameWarnValidResult.index)
+          )
+        }
+        const levels = selector.split(' ').slice(1)
+        const target = drillDown(sharedData, levels)
+        ruleNode.walkDecls((declNode) => {
+          target[declNode.prop] = declNode.value
+        })
+      }
     } else {
       otherCode += `\n${ruleNode.toString()}`
     }
@@ -167,7 +191,7 @@ export default function ViteCSSExportPlugin(
     },
     async transform(code, id, options) {
       if (isCSSRequest(id) && exportRE.test(id)) {
-        const parseResult = parseCode(code)
+        const parseResult = parseCode.call(this as TransformPluginContext, code)
         parseResultCache.set(id, parseResult)
         return {
           code: parseResult.otherCode,
