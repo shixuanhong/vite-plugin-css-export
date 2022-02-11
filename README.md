@@ -44,6 +44,11 @@ export default defineConfig({
 });
 ```
 
+```typescript
+// env.d.ts
+/// <reference types="vite-plugin-css-export/client" />
+```
+
 ```css
 /* variables.css */
 :root {
