@@ -288,7 +288,6 @@ You may get some warnings from the editor or Stylelint, you can disable related 
   "css.lint.unknownProperties": "ignore",
   "scss.lint.unknownProperties": "ignore",
   "less.lint.unknownProperties": "ignore",
-  //...
 }
 
 ```
@@ -318,13 +317,17 @@ TODO
 
 ### additionalData
 
-TODO
+* **type:** `SharedCSSData`
+
+* **default:** `{}`
+
+* **description:** The option allows you to append data to all processed results, we can share some common variables here.
 
 ### cssModule
 
 #### cssModule.isGlobalCSSModule
 
-* **type:** `boolean | undefined`
+* **type:** `boolean`
 
 * **default:** `false`
 
@@ -332,7 +335,7 @@ TODO
 
 #### cssModule.enableExportMerge
 
-* **type:** `boolean | undefined`
+* **type:** `boolean`
 
 * **default:** `false`
 
@@ -342,7 +345,7 @@ TODO
 
 #### cssModule.sharedDataExportName
 
-* **type:** `string | undefined`
+* **type:** `string`
 
 * **default:** `'sharedData'`
 
