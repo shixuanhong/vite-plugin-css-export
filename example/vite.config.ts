@@ -7,6 +7,11 @@ export default defineConfig({
   plugins: [
     vue(),
     ViteCSSExportPlugin({
+      additionalData: {
+        nav: {
+          navBgColor: '#fff'
+        }
+      },
       cssModule: {
         isGlobalCSSModule: false,
         enableExportMerge: false,

@@ -7,62 +7,13 @@ import {
   isAcornNode,
   clearExportNamedDeclaration
 } from './utils'
+import type { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData, ParseResult } from './interface'
 import type { Program } from 'estree'
 import type { TransformPluginContext } from 'rollup'
 import escodegen from 'escodegen'
-export interface CSSModuleOptions {
-  /**
-   * Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
-   *
-   * @default false
-   * @type {boolean}
-   * @memberof CSSModuleOptions
-   */
-  isGlobalCSSModule?: boolean
-  /**
-   * When value is true, `sharedData` will be merged with the result of CSS Module,
-   * otherwise only `sharedData` will be exported.
-   *
-   * `sharedData` is the parsed result of the plugin.
-   *
-   * @default false
-   * @type {boolean}
-   * @memberof CSSModuleOptions
-   */
-  enableExportMerge?: boolean
-  /**
-   * When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
-   *
-   * @default "sharedData"
-   * @type {string}
-   * @memberof CSSModuleOptions
-   */
-  sharedDataExportName?: string
-}
-export interface ViteCSSExportPluginOptions {
-  propertyFilter?: (key: string, value: any) => boolean
-  propertyTransform?: (key: string) => string
-  additionalData?: SharedCSSData
-  cssModule?: CSSModuleOptions
-}
 
-export type SharedCSSData = {
-  [key: string]: SharedCSSData | string
-}
-
-type ParseResult = {
-  /**
-   * data shared with JavaScript
-   *
-   * @type {SharedCSSData}
-   */
-  sharedData: SharedCSSData
-  /**
-   * unprocessed css code
-   *
-   * @type {string}
-   */
-  otherCode: string
+export {
+  CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData
 }
 
 const exportRE = /(\?|&)export(?:&|$)/
@@ -211,7 +162,7 @@ export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
   const pluginName = 'vite:css-export'
-  const { cssModule = defaultCSSModuleOptions } = options
+  const { cssModule = defaultCSSModuleOptions, additionalData = {} } = options
   const parseResultCache = new Map<string, ParseResult>()
   let config
   return {
@@ -230,6 +181,8 @@ export default function ViteCSSExportPlugin(
     async transform(code, id, options) {
       if (isCSSRequest(id) && exportRE.test(id)) {
         const parseResult = parseCode.call(this as TransformPluginContext, code)
+        // append additionalData
+        Object.assign(parseResult.sharedData, additionalData)
         // cache the current parseResult for use in vite:post
         parseResultCache.set(id, parseResult)
         return {
