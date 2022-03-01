@@ -28,18 +28,18 @@ export interface CSSModuleOptions {
   sharedDataExportName?: string
 }
 export interface ViteCSSExportPluginOptions {
-  /**
-   * TODO
-   *
-   * @memberof ViteCSSExportPluginOptions
-   */
-  propertyFilter?: (key: string, value: any) => boolean
-  /**
-   * TODO
-   *
-   * @memberof ViteCSSExportPluginOptions
-   */
-  propertyTransform?: (key: string) => string
+  // /**
+  //  * TODO
+  //  *
+  //  * @memberof ViteCSSExportPluginOptions
+  //  */
+  // propertyFilter?: (key: string, value: any) => boolean
+  // /**
+  //  * TODO
+  //  *
+  //  * @memberof ViteCSSExportPluginOptions
+  //  */
+  // propertyTransform?: (key: string) => string
   /**
    * the option allows you to append data to all processed results, we can share some common variables here
    *
