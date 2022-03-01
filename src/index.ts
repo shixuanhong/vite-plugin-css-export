@@ -13,18 +13,18 @@ import escodegen from 'escodegen'
 export interface CSSModuleOptions {
   /**
    * Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
-   * 
+   *
    * @default false
    * @type {boolean}
    * @memberof CSSModuleOptions
    */
   isGlobalCSSModule?: boolean
   /**
-   * When value is true, `sharedData` will be merged with the result of CSS Module, 
+   * When value is true, `sharedData` will be merged with the result of CSS Module,
    * otherwise only `sharedData` will be exported.
-   * 
+   *
    * `sharedData` is the parsed result of the plugin.
-   * 
+   *
    * @default false
    * @type {boolean}
    * @memberof CSSModuleOptions
@@ -32,7 +32,7 @@ export interface CSSModuleOptions {
   enableExportMerge?: boolean
   /**
    * When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
-   * 
+   *
    * @default "sharedData"
    * @type {string}
    * @memberof CSSModuleOptions
@@ -51,7 +51,17 @@ export type SharedCSSData = {
 }
 
 type ParseResult = {
+  /**
+   * data shared with JavaScript
+   *
+   * @type {SharedCSSData}
+   */
   sharedData: SharedCSSData
+  /**
+   * unprocessed css code
+   *
+   * @type {string}
+   */
   otherCode: string
 }
 
@@ -80,6 +90,13 @@ const defaultCSSModuleOptions: CSSModuleOptions = {
 export const isCSSRequest = (request: string): boolean =>
   cssLangRE.test(request)
 
+/**
+ * parse css code after vite:css
+ *
+ * @param {TransformPluginContext} this
+ * @param {string} cssCode
+ * @return {ParseResult}
+ */
 function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
   const sharedData: SharedCSSData = {}
   let otherCode = ''
@@ -87,6 +104,7 @@ function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
   parse(cssCode).walkRules((ruleNode) => {
     const selector = ruleNode.selector
     if (macthingRE.test(selector)) {
+      // error
       let nameErrorValidResult = nameErrorValidRE.exec(selector)
       if (nameErrorValidResult && nameErrorValidResult.length > 0) {
         this.error(
@@ -94,6 +112,7 @@ function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
           ruleNode.positionInside(nameErrorValidResult.index)
         )
       } else {
+        // warning 
         let nameWarnValidResult = nameWarnValidRE.exec(selector)
         if (nameWarnValidResult && nameWarnValidResult.length > 0) {
           this.warn(
@@ -101,6 +120,7 @@ function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
             ruleNode.positionInside(nameWarnValidResult.index)
           )
         }
+        // assign values to sharedData
         const levels = selector.split(' ').slice(1)
         const target = drillDown(sharedData, levels)
         ruleNode.walkDecls((declNode) => {
@@ -108,6 +128,7 @@ function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
         })
       }
     } else {
+      // unprocessed css code will be injected into the index.html by vite:css-post
       otherCode += `\n${ruleNode.toString()}`
     }
   })
@@ -131,9 +152,11 @@ function hijackCSSPostPlugin(
     const _transform = cssPostPlugin.transform
     cssPostPlugin.transform = async function (this: any, ...args: any[]) {
       const id = args[1]
+      // result of vite:post
       const result = (await _transform.apply(this, args as any)) as string
-      const ast = this.parse(result) as acorn.Node | Program
+      // this result will be modified if the conditions of vite:css-export are met.
       if (isCSSRequest(id) && exportRE?.test(id)) {
+        const ast = this.parse(result) as acorn.Node | Program
         const parseResult = parseResultCache.get(id)
         let sharedAst = this.parse(
           dataToEsm(parseResult?.sharedData, {
@@ -141,6 +164,8 @@ function hijackCSSPostPlugin(
             preferConst: true
           })
         )
+
+        // compatible with css module
         if (cssModuleRE.test(id) || isGlobalCSSModule) {
           if (enableExportMerge) {
             return result.replace(
@@ -153,12 +178,14 @@ function hijackCSSPostPlugin(
               ].join('\n')
             )
           } else {
+            // override
+            // clear all named exports, exclude /^__vite__/
             clearExportNamedDeclaration(ast, /^__vite__/)
             isProgram(ast) && (ast.body = ast.body.concat(sharedAst.body))
           }
-          return escodegen.generate(ast)
         } else {
           if (isProgram(ast)) {
+            // remove the original default export
             const defaultIndex = ast.body.findIndex(
               (item: { type: string }) =>
                 item.type === 'ExportDefaultDeclaration'
@@ -166,8 +193,8 @@ function hijackCSSPostPlugin(
             defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
             ast.body = ast.body.concat(sharedAst.body)
           }
-          return escodegen.generate(ast)
         }
+        return escodegen.generate(ast)
       } else {
         return result
       }
@@ -175,6 +202,11 @@ function hijackCSSPostPlugin(
   }
 }
 
+/**
+ * the plugin is applied after vite:css and before vite:post
+ * @param {ViteCSSExportPluginOptions} [options={}]
+ * @return {Plugin}
+ */
 export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
@@ -198,6 +230,7 @@ export default function ViteCSSExportPlugin(
     async transform(code, id, options) {
       if (isCSSRequest(id) && exportRE.test(id)) {
         const parseResult = parseCode.call(this as TransformPluginContext, code)
+        // cache the current parseResult for use in vite:post
         parseResultCache.set(id, parseResult)
         return {
           code: parseResult.otherCode,
