@@ -131,53 +131,6 @@ $menuItemBgColor: #1d243a;
 }
 ```
 
-``` less
-// .less
-:root {
-  --font-color: #333;
-}
-
-@menuItemBgColor: #1d243a;
-
-:export {
-  fontColor: var(--font-color);
-  fontSize: 14px;
-
-  button {
-    bgColor: #462dd3;
-    color: #fff;
-  }
-
-  menu {
-    menuItem {
-      bgColor: @menuItemBgColor;
-      color: #fff;
-    }
-  }
-}
-```
-
-``` stylus
-// .styl
-:root 
-  --font-color: #333
-
-menuItemBgColor = #1d243a
-
-:export 
-  fontColor: var(--font-color)
-  fontSize: 14px
-
-  button 
-    bgColor: #462dd3
-    color: #fff
-  
-  menu 
-    menuItem 
-      bgColor: menuItemBgColor
-      color: #fff
-```
-
 ### CSS Module
 
 When used with CSS Module, some simple configuration is required. By default, the exported results will not include CSS Module related content (except what's in `:export`) .
@@ -312,13 +265,31 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 
 ## Options ⚙️
 
-### propertyFilter
+### propertyNameTransformer
 
-TODO
+* **type:** `(key: string) => string`
 
-### propertyTransform
+* **default:** `undefined`
 
-TODO
+* **description:** The option allows you to define a method for transforming CSS property names, but doesn`t transform additionalData. The plugin has some built-in methods. Usage:
+
+``` typescript
+// vite.config.ts
+import {
+  default as ViteCSSExportPlugin,
+  kebabCaseToUpperCamelCase,
+  kebabCaseToLowerCamelCase,
+  kebabCaseToPascalCase
+} from 'vite-plugin-css-export'
+
+export default defineConfig({
+  plugins: [
+    ViteCSSExportPlugin({
+      propertyNameTransformer: kebabCaseToUpperCamelCase
+    })
+  ]
+})
+```
 
 ### additionalData
 

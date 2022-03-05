@@ -28,27 +28,21 @@ export interface CSSModuleOptions {
   sharedDataExportName?: string
 }
 export interface ViteCSSExportPluginOptions {
-  // /**
-  //  * TODO
-  //  *
-  //  * @memberof ViteCSSExportPluginOptions
-  //  */
-  // propertyFilter?: (key: string, value: any) => boolean
-  // /**
-  //  * TODO
-  //  *
-  //  * @memberof ViteCSSExportPluginOptions
-  //  */
-  // propertyTransform?: (key: string) => string
   /**
-   * the option allows you to append data to all processed results, we can share some common variables here
+   * The option allows you to define a method for transforming CSS property names, but doesn`t transform additionalData.
+   *
+   * @memberof ViteCSSExportPluginOptions
+   */
+  propertyNameTransformer?: (key: string) => string
+  /**
+   * The option allows you to append data to all processed results, we can share some common variables here.
    *
    * @type {SharedCSSData}
    * @memberof ViteCSSExportPluginOptions
    */
   additionalData?: SharedCSSData
   /**
-   * options related to css module
+   * Options related to css module.
    * 
    * @type {CSSModuleOptions}
    * @memberof ViteCSSExportPluginOptions
@@ -62,13 +56,13 @@ export interface SharedCSSData {
 
 export interface ParseResult {
   /**
-   * data shared with JavaScript
+   * Data shared with JavaScript.
    *
    * @type {SharedCSSData}
    */
   sharedData: SharedCSSData
   /**
-   * unprocessed css code
+   * Unprocessed css code.
    *
    * @type {string}
    */

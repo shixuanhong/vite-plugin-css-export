@@ -1,0 +1,26 @@
+:root {
+  --font-color: #333;
+}
+
+$menuItemBgColor: #1d243a;
+
+.base-button {
+  background-color: transparent;
+}
+
+:export {
+  font-color: var(--font-color);
+  font-size: 14px;
+
+  button {
+    bg-color: #462dd3;
+    color: #fff;
+  }
+
+  menu {
+    menu-item {
+      bg-color: $menuItemBgColor;
+      color: #fff;
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Inspect from 'vite-plugin-inspect'
-import ViteCSSExportPlugin from '../src'
+import { default as ViteCSSExportPlugin, kebabCaseToUpperCamelCase } from '../src'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -15,8 +15,9 @@ export default defineConfig({
       cssModule: {
         isGlobalCSSModule: false,
         enableExportMerge: false,
-        sharedDataExportName: 'cssExportedData'
-      }
+        sharedDataExportName: 'cssExportedData',
+      },
+      propertyNameTransformer: kebabCaseToUpperCamelCase
     }),
     Inspect()
   ]

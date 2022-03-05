@@ -42,8 +42,8 @@ pnpm add vite-plugin-css-export -D
 
 ```typescript
 // vite.config.ts
-import ViteCSSExportPlugin from "vite-plugin-css-export";
-import { defineConfig } from "vite";
+import ViteCSSExportPlugin from 'vite-plugin-css-export';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [ViteCSSExportPlugin()],
@@ -132,61 +132,14 @@ $menuItemBgColor: #1d243a;
 }
 ```
 
-``` less
-// .less
-:root {
-  --font-color: #333;
-}
-
-@menuItemBgColor: #1d243a;
-
-:export {
-  fontColor: var(--font-color);
-  fontSize: 14px;
-
-  button {
-    bgColor: #462dd3;
-    color: #fff;
-  }
-
-  menu {
-    menuItem {
-      bgColor: @menuItemBgColor;
-      color: #fff;
-    }
-  }
-}
-```
-
-``` stylus
-// .styl
-:root 
-  --font-color: #333
-
-menuItemBgColor = #1d243a
-
-:export 
-  fontColor: var(--font-color)
-  fontSize: 14px
-
-  button 
-    bgColor: #462dd3
-    color: #fff
-  
-  menu 
-    menuItem 
-      bgColor: menuItemBgColor
-      color: #fff
-```
-
 ### CSS Module
 
 与CSS Module一起使用时，需要进行一些简单的配置，默认情况下，导出的结果中不会包含CSS Module的相关内容（除了`:export`下的内容）。
 
 ``` typescript
 // vite.config.ts
-import ViteCSSExportPlugin from "vite-plugin-css-export";
-import { defineConfig } from "vite";
+import ViteCSSExportPlugin from 'vite-plugin-css-export';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [
@@ -314,13 +267,31 @@ console.log(cssModuleResult)
 
 ## 配置项 ⚙️
 
-### propertyFilter
+### propertyNameTransformer
 
-TODO
+* **type:** `(key: string) => string`
 
-### propertyTransform
+* **default:** `undefined`
 
-TODO
+* **description:** 该选项允许你定义一个转换CSS属性名称的方法，它并不会处理additionalData。插件内置了一些方法，用法如下：
+
+``` typescript
+// vite.config.ts
+import {
+  default as ViteCSSExportPlugin,
+  kebabCaseToUpperCamelCase,
+  kebabCaseToLowerCamelCase,
+  kebabCaseToPascalCase
+} from 'vite-plugin-css-export'
+
+export default defineConfig({
+  plugins: [
+    ViteCSSExportPlugin({
+      propertyNameTransformer: kebabCaseToUpperCamelCase
+    })
+  ]
+})
+```
 
 ### additionalData
 

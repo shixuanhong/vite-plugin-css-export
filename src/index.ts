@@ -9,12 +9,14 @@ import {
 } from './utils'
 import type { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData, ParseResult } from './interface'
 import type { Program } from 'estree'
-import type { TransformPluginContext, TransformResult ,SourceDescription } from 'rollup'
+import type { TransformPluginContext, TransformResult, SourceDescription } from 'rollup'
 import escodegen from 'escodegen'
 
 export {
   CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData
 }
+
+export * from './transformer'
 
 const exportRE = /(\?|&)export(?:&|$)/
 const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
@@ -38,7 +40,7 @@ const defaultCSSModuleOptions: CSSModuleOptions = {
   sharedDataExportName: 'sharedData'
 }
 
-export const isCSSRequest = (request: string): boolean =>
+const isCSSRequest = (request: string): boolean =>
   cssLangRE.test(request)
 
 /**
@@ -48,7 +50,7 @@ export const isCSSRequest = (request: string): boolean =>
  * @param {string} cssCode
  * @return {ParseResult}
  */
-function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
+function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTransformer?: (key: string) => string): ParseResult {
   const sharedData: SharedCSSData = {}
   let otherCode = ''
 
@@ -72,10 +74,11 @@ function parseCode(this: TransformPluginContext, cssCode: string): ParseResult {
           )
         }
         // assign values to sharedData
-        const levels = selector.split(' ').slice(1)
-        const target = drillDown(sharedData, levels)
+        const levelNames = selector.split(' ').slice(1).map(levelName => propertyNameTransformer ? propertyNameTransformer(levelName) : levelName)
+        const target = drillDown(sharedData, levelNames)
         ruleNode.walkDecls((declNode) => {
-          target[declNode.prop] = declNode.value
+          let propertyName = propertyNameTransformer ? propertyNameTransformer(declNode.prop) : declNode.prop
+          target[propertyName] = declNode.value
         })
       }
     } else {
@@ -166,6 +169,7 @@ function hijackCSSPostPlugin(
   }
 }
 
+
 /**
  * the plugin is applied after vite:css and before vite:post
  * @param {ViteCSSExportPluginOptions} [options={}]
@@ -175,7 +179,7 @@ export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
   const pluginName = 'vite:css-export'
-  const { cssModule = defaultCSSModuleOptions, additionalData = {} } = options
+  const { cssModule = defaultCSSModuleOptions, additionalData = {}, propertyNameTransformer } = options
   const parseResultCache = new Map<string, ParseResult>()
   let config
   return {
@@ -193,7 +197,7 @@ export default function ViteCSSExportPlugin(
     },
     async transform(code, id, options) {
       if (isCSSRequest(id) && exportRE.test(id)) {
-        const parseResult = parseCode.call(this as TransformPluginContext, code)
+        const parseResult = parseCode.call(this as TransformPluginContext, code, propertyNameTransformer)
         // append additionalData
         Object.assign(parseResult.sharedData, additionalData)
         // cache the current parseResult for use in vite:post
