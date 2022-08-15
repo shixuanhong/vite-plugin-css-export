@@ -1,5 +1,5 @@
 import type { Program, Identifier, VariableDeclarator } from 'estree'
-import acornWalk from 'acorn-walk'
+import { simple } from 'acorn-walk'
 
 export const drillDown = (obj: any, keys: Array<string>): any => {
   if (!obj) {
@@ -34,9 +34,9 @@ export function clearExportNamedDeclaration(
 ): void {
   const filteredNodeList: Array<unknown> = []
   if (isAcornNode(ast)) {
-    acornWalk.simple(ast, {
+    simple(ast, {
       ExportNamedDeclaration(node) {
-        acornWalk.simple(node, {
+        simple(node, {
           VariableDeclarator(variableDeclaratorNode: unknown) {
             let name = (<Identifier>(
               (<VariableDeclarator>variableDeclaratorNode).id
