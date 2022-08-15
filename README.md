@@ -4,9 +4,10 @@
 
 **A Vite plugin for sharing variables between Javascript and CSS.**
 
-<p style="text-align:left">
+<p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
   <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/vite-plugin-css-export" alt="node compatibility"></a>
+  <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/dependency-version/vite-plugin-css-export/peer/vite" alt="vite compatibility"></a>
 </p>
 
 This plugin allows you to use a pseudo-class called `:export` in CSS, and properties in this pseudo-class will be exported to Javascript.
@@ -232,6 +233,73 @@ console.log(cssModuleResult)
 //         }
 //     }
 // }
+```
+
+### Note ⚠
+
+Please do not type the following characters in property names:
+
+``` bash
+
+"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*", "\", "-"
+```
+
+Because this plugin is applied after `vite:css`, all parsing actions are based on the result returned by `vite:css`. When you type the above characters, there are some characters that the plugin cannot give correct warning/error message, for example: `@`
+
+``` scss
+// your code
+:export {
+  fontColor: var(--font-color);
+  fontSize: 14px;
+
+  button {
+    bgColor: #462dd3;
+    color: #fff;
+  }
+
+  @menu {
+    menuItem {
+      bgColor: $menuItemBgColor;
+      color: #fff;
+    }
+  }
+}
+```
+
+``` css
+/** after vite:css */
+:export {
+  fontColor: var(--font-color);
+  fontSize: 14px;
+}
+:export button {
+  bgColor: #462dd3;
+  color: #fff;
+}
+/** unable to track the error @menu */
+@menu {
+  :export menuItem {
+    bgColor: #1d243a;
+    color: #fff;
+  }
+}
+```
+
+``` javascript
+// after vite:css-export
+{
+  fontColor: "var(--font-color)",
+  fontSize: "14px",
+  button: {
+    bgColor: "#462dd3",
+    color: "#fff"
+  },
+  // menu is missing
+  menuItem: {
+    bgColor: "#1d243a",
+    color: "#fff"
+  }
+}
 ```
 
 ### Lint

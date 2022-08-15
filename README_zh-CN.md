@@ -4,9 +4,10 @@
 
 **一个用于在CSS和Javascript之间共享变量的Vite插件。**
 
-<p style="text-align:left">
+<p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
   <a href="https://nodejs.org/en/about/releases/"><img src="https://img.shields.io/node/v/vite-plugin-css-export" alt="node compatibility"></a>
+  <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/dependency-version/vite-plugin-css-export/peer/vite" alt="vite compatibility"></a>
 </p>
 
 这个插件允许你在 CSS 中使用 `:export` 伪类，并且这个伪类下的属性将会被导出到 Javascript中。
@@ -234,6 +235,73 @@ console.log(cssModuleResult)
 //         }
 //     }
 // }
+```
+
+### 注意 ⚠
+
+请不要在属性名称中键入以下字符：
+
+``` bash
+
+"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*", "\", "-"
+```
+
+由于本插件应用在`vite:css`之后，所以一切解析行为都基于`vite:css`返回的结果，当你键入以上字符时，存在一些字符本插件无法给出正确的警告/错误信息，例如：`@`
+
+``` scss
+// your code
+:export {
+  fontColor: var(--font-color);
+  fontSize: 14px;
+
+  button {
+    bgColor: #462dd3;
+    color: #fff;
+  }
+
+  @menu {
+    menuItem {
+      bgColor: $menuItemBgColor;
+      color: #fff;
+    }
+  }
+}
+```
+
+``` css
+/** after vite:css */
+:export {
+  fontColor: var(--font-color);
+  fontSize: 14px;
+}
+:export button {
+  bgColor: #462dd3;
+  color: #fff;
+}
+/** 无法捕捉 @menu */
+@menu {
+  :export menuItem {
+    bgColor: #1d243a;
+    color: #fff;
+  }
+}
+```
+
+``` javascript
+// after vite:css-export
+{
+  fontColor: "var(--font-color)",
+  fontSize: "14px",
+  button: {
+    bgColor: "#462dd3",
+    color: "#fff"
+  },
+  // menu 丢失
+  menuItem: {
+    bgColor: "#1d243a",
+    color: "#fff"
+  }
+}
 ```
 
 ### 代码检查

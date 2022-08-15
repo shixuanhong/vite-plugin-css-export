@@ -27,7 +27,11 @@ const matchedList = [':export', ':share']
 const macthingRE = new RegExp(
   `(^(${matchedList.join('|')})$|^(${matchedList.join('|')})\\s)`
 )
-const errorCharacters = '[~><\\[\\]\\(\\)\\.#\\:\\*]'
+const errorCharacterArr = ['/','~','>','<','[',']','(',')','.','#','@',':','*']
+const warnCharacterArr = ['\\' ,'-']
+
+console.log(errorCharacterArr.concat(warnCharacterArr).map(c=>`"${c}"`).join(', '))
+const errorCharacters = '[/~><\\[\\]\\(\\)\\.#@\\:\\*]'
 const warnCharacters = '[\\-]'
 const nameErrorValidRE = new RegExp(
   `(?!${macthingRE.source})${errorCharacters}`
@@ -61,7 +65,7 @@ function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTr
       let nameErrorValidResult = nameErrorValidRE.exec(selector)
       if (nameErrorValidResult && nameErrorValidResult.length > 0) {
         this.error(
-          `property names are not allowed to contain characters in this regular expression: ${errorCharacters}`,
+          `the property name cannot contain the characters: ${errorCharacterArr.map(c=>`"${c}"`).join(', ')}\n`,
           ruleNode.positionInside(nameErrorValidResult.index)
         )
       } else {
@@ -69,7 +73,7 @@ function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTr
         let nameWarnValidResult = nameWarnValidRE.exec(selector)
         if (nameWarnValidResult && nameWarnValidResult.length > 0) {
           this.warn(
-            `property names should not contain the characters in this regular expression: ${warnCharacters}`,
+            `the property name should not contain the characters: ${warnCharacterArr.map(c=>`"${c}"`).join(', ')}\n`,
             ruleNode.positionInside(nameWarnValidResult.index)
           )
         }
