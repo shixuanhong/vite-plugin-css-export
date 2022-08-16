@@ -4,7 +4,7 @@
     "name": "shixuanhong"
   },
   "description": "A Vite plugin for sharing variables between Javascript and CSS (or Sass, Less, etc.)",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "keywords": [
     "vite",
     "vite-plugin",
@@ -45,6 +45,7 @@
   "devDependencies": {
     "@types/acorn": "^4.0.6",
     "@types/escodegen": "^0.0.7",
+    "@types/estree": "^1.0.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^17.0.12",
     "@vitejs/plugin-vue": "3.0.3",
