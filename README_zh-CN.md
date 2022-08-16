@@ -2,7 +2,7 @@
 
 [中文](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README_zh-CN.md) | [English](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README.md)
 
-**一个用于在CSS和Javascript之间共享变量的Vite插件。**
+**一个用于在 CSS 和 Javascript 之间共享变量的 Vite 插件。**
 
 <p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
@@ -10,11 +10,11 @@
   <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/dependency-version/vite-plugin-css-export/peer/vite" alt="vite compatibility"></a>
 </p>
 
-这个插件允许你在 CSS 中使用 `:export` 伪类，并且这个伪类下的属性将会被导出到 Javascript中。
+这个插件允许你在 CSS 中使用 `:export` 伪类，并且这个伪类下的属性将会被导出到 Javascript 中。
 
-除此之外，如果在Vite中启用了CSS预处理器，那我们就可以在 .scss、.sass、.less、.styl 和 .stylus 文件中使用 `:export`。
+除此之外，如果在 Vite 中启用了 CSS 预处理器，那我们就可以在 .scss、.sass、.less、.styl 和 .stylus 文件中使用 `:export`。
 
-[如何在Vite中使用CSS预处理器](https://vitejs.dev/guide/features.html#css-pre-processors)
+[如何在 Vite 中使用 CSS 预处理器](https://vitejs.dev/guide/features.html#css-pre-processors)
 
 > **注意：**
 > 如果插件与 CSS Module 一起使用，请将 `:export` 替换为 `:share` ，这样做可以避免与 CSS Module 提供的 `:export` 冲突（仅是名称相同，并不会导致两者运行出错）。 `:share` 是 `:export` 的别名。
@@ -43,12 +43,12 @@ pnpm add vite-plugin-css-export -D
 
 ```typescript
 // vite.config.ts
-import ViteCSSExportPlugin from 'vite-plugin-css-export';
-import { defineConfig } from 'vite';
+import ViteCSSExportPlugin from 'vite-plugin-css-export'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [ViteCSSExportPlugin()],
-});
+  plugins: [ViteCSSExportPlugin()]
+})
 ```
 
 ```css
@@ -102,7 +102,7 @@ interface CSSPropertiesExportedData {
 // main.ts
 import cssResult from './assets/style/example.css?export'
 
-console.log(cssResult);
+console.log(cssResult)
 
 // output
 // {
@@ -121,11 +121,11 @@ console.log(cssResult);
 // }
 ```
 
-### CSS预处理器
+### CSS 预处理器
 
-如果你启用了CSS预处理器，那么你可以使用嵌套规则，便于我们定义一些复杂的结构。
+如果你启用了 CSS 预处理器，那么你可以使用嵌套规则，便于我们定义一些复杂的结构。
 
-``` scss
+```scss
 // .scss
 :root {
   --font-color: #333;
@@ -137,12 +137,12 @@ $menuItemBgColor: #1d243a;
   fontColor: var(--font-color);
   fontSize: 14px;
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
@@ -151,12 +151,12 @@ $menuItemBgColor: #1d243a;
 
 ### CSS Module
 
-与CSS Module一起使用时，需要进行一些简单的配置，默认情况下，导出的结果中不会包含CSS Module的相关内容（除了`:export`下的内容）。
+与 CSS Module 一起使用时，需要进行一些简单的配置，默认情况下，导出的结果中不会包含 CSS Module 的相关内容（除了`:export`下的内容）。
 
-``` typescript
+```typescript
 // vite.config.ts
-import ViteCSSExportPlugin from 'vite-plugin-css-export';
-import { defineConfig } from 'vite';
+import ViteCSSExportPlugin from 'vite-plugin-css-export'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
@@ -171,7 +171,7 @@ export default defineConfig({
 })
 ```
 
-``` scss
+```scss
 // example.module.scss
 :root {
   --font-color: #333;
@@ -184,17 +184,17 @@ $menuItemBgColor: #1d243a;
 }
 
 :share {
-  fontColor: var(--font-color);
-  fontSize: 14px;
+  fontcolor: var(--font-color);
+  fontsize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
@@ -208,7 +208,7 @@ $menuItemBgColor: #1d243a;
 }
 ```
 
-``` typescript
+```typescript
 // main.ts
 import cssModuleResult from './assets/style/example.module.scss?export'
 
@@ -257,34 +257,34 @@ console.log(cssModuleResult)
 
 请不要在属性名称中键入以下字符：
 
-``` bash
+```bash
 
-"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*", "\", "-"
+"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*"
 ```
 
 由于本插件应用在`vite:css`之后，所以一切解析行为都基于`vite:css`返回的结果，当你键入以上字符时，存在一些字符本插件无法给出正确的警告/错误信息，例如：`@`
 
-``` scss
+```scss
 // your code
 :export {
   fontColor: var(--font-color);
   fontSize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   @menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
 }
 ```
 
-``` css
+```css
 /** after vite:css */
 :export {
   fontColor: var(--font-color);
@@ -303,7 +303,7 @@ console.log(cssModuleResult)
 }
 ```
 
-``` javascript
+```javascript
 // after vite:css-export
 {
   fontColor: "var(--font-color)",
@@ -322,31 +322,33 @@ console.log(cssModuleResult)
 
 ### 代码检查
 
-你可能会得到编辑器或者Stylelint的一些警告，你可以把相关规则关闭。
+你可能会得到编辑器或者 Stylelint 的一些警告，你可以把相关规则关闭。
 
 #### VS Code
 
-``` json
+```json
 {
   "css.lint.unknownProperties": "ignore",
   "scss.lint.unknownProperties": "ignore",
-  "less.lint.unknownProperties": "ignore",
+  "less.lint.unknownProperties": "ignore"
 }
-
 ```
 
 #### Stylelint
 
-``` json
+```json
 {
   "rules": {
     "property-no-unknown": [true, {
       "ignoreSelectors": [":export", ":share"]
     }],
     "property-case": null,
-    "selector-pseudo-class-no-unknown": [true, {
-      "ignorePseudoClasses": ["export", "share"]
-    }]
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["export", "share"]
+      }
+    ]
   }
 }
 ```
@@ -355,13 +357,13 @@ console.log(cssModuleResult)
 
 ### propertyNameTransformer
 
-* **type:** `(key: string) => string`
+- **type:** `(key: string) => string`
 
-* **default:** `undefined`
+- **default:** `undefined`
 
-* **description:** 该选项允许你定义一个转换CSS属性名称的方法，它并不会处理additionalData。插件内置了一些方法，用法如下：
+- **description:** 该选项允许你定义一个转换 CSS 属性名称的方法，它并不会处理 additionalData。插件内置了一些方法，用法如下：
 
-``` typescript
+```typescript
 // vite.config.ts
 import {
   default as ViteCSSExportPlugin,
@@ -381,36 +383,36 @@ export default defineConfig({
 
 ### additionalData
 
-* **type:** `SharedCSSData`
+- **type:** `SharedCSSData`
 
-* **default:** `{}`
+- **default:** `{}`
 
-* **description:** 该选项允许你将指定的数据附加到所有的已处理的结果中，我们可以在这里分享一些常用的属性值。
+- **description:** 该选项允许你将指定的数据附加到所有的已处理的结果中，我们可以在这里分享一些常用的属性值。
 
 ### cssModule
 
 #### cssModule.isGlobalCSSModule
 
-* **type:** `boolean`
+- **type:** `boolean`
 
-* **default:** `false`
+- **default:** `false`
 
-* **description:** 是否在全局启用了CSS Module，而不仅仅是在 `.module.[suffix]` 文件中。
+- **description:** 是否在全局启用了 CSS Module，而不仅仅是在 `.module.[suffix]` 文件中。
 
 #### cssModule.enableExportMerge
 
-* **type:** `boolean`
+- **type:** `boolean`
 
-* **default:** `false`
+- **default:** `false`
 
-* **description:** 当值为true时, `sharedData` 将会和CSS Module的内容合并后再导出, 否则只有 `sharedData` 会被导出。
+- **description:** 当值为 true 时, `sharedData` 将会和 CSS Module 的内容合并后再导出, 否则只有 `sharedData` 会被导出。
 
-> *`sharedData` 是本插件处理CSS内容后的结果*
+> _`sharedData` 是本插件处理 CSS 内容后的结果_
 
 #### cssModule.sharedDataExportName
 
-* **type:** `string`
+- **type:** `string`
 
-* **default:** `'sharedData'`
+- **default:** `'sharedData'`
 
-* **description:** 当 `cssModule.enableExportMerge` 值为true时, 修改导出结果中 `sharedData` 的属性名称。
+- **description:** 当 `cssModule.enableExportMerge` 值为 true 时, 修改导出结果中 `sharedData` 的属性名称。
