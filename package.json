@@ -24,7 +24,8 @@
     "build": "vue-tsc --noEmit && vite build example",
     "build:lib": "unbuild",
     "preview": "vite preview example",
-    "test": "jest test"
+    "test": "jest test",
+    "publish": "unbuild && npm publish"
   },
   "exports": {
     ".": {
