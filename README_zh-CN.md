@@ -51,13 +51,6 @@ export default defineConfig({
 });
 ```
 
-```typescript
-// 如果使用了 Typescript ，你需要引用这个声明文件
-// 里面包含了所需的通配符模块声明，如 *.css?export
-// env.d.ts
-/// <reference types="vite-plugin-css-export/client" />
-```
-
 ```css
 /* example.css */
 :root {
@@ -77,6 +70,29 @@ export default defineConfig({
 :export menu menuItem {
   bgColor: #1d243a;
   color: #fff;
+}
+```
+
+```typescript
+// 如果使用了 Typescript ，你需要引用这个声明文件
+// 里面包含了所需的通配符模块声明，如 *.css?export
+// env.d.ts
+/// <reference types="vite-plugin-css-export/client" />
+
+// 如果你想要代码提示
+interface CSSPropertiesExportedData {
+  fontColor: string
+  fontSize: string
+  button: {
+    bgColor: string
+    color: string
+  }
+  menu: {
+    menuItem:{
+      bgColor: string
+      color: string
+    }
+  }
 }
 ```
 
@@ -324,7 +340,9 @@ console.log(cssModuleResult)
 ``` json
 {
   "rules": {
-    "property-no-unknown": null,
+    "property-no-unknown": [true, {
+      "ignoreSelectors": [":export", ":share"]
+    }],
     "property-case": null,
     "selector-pseudo-class-no-unknown": [true, {
       "ignorePseudoClasses": ["export", "share"]

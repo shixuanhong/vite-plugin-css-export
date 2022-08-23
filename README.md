@@ -51,12 +51,6 @@ export default defineConfig({
 });
 ```
 
-```typescript
-// if you use in Typescript. wildcard module declarations
-// env.d.ts
-/// <reference types="vite-plugin-css-export/client" />
-```
-
 ```css
 /* example.css */
 :root {
@@ -76,6 +70,28 @@ export default defineConfig({
 :export menu menuItem {
   bgColor: #1d243a;
   color: #fff;
+}
+```
+
+```typescript
+// if you use in Typescript. wildcard module declarations
+// env.d.ts
+/// <reference types="vite-plugin-css-export/client" />
+
+// if you want IntelliSense 
+interface CSSPropertiesExportedData {
+  fontColor: string
+  fontSize: string
+  button: {
+    bgColor: string
+    color: string
+  }
+  menu: {
+    menuItem:{
+      bgColor: string
+      color: string
+    }
+  }
 }
 ```
 
@@ -322,7 +338,9 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 ``` json
 {
   "rules": {
-    "property-no-unknown": null,
+    "property-no-unknown": [true, {
+      "ignoreSelectors": [":export", ":share"]
+    }],
     "property-case": null,
     "selector-pseudo-class-no-unknown": [true, {
       "ignorePseudoClasses": ["export", "share"]

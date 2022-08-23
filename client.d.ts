@@ -1,5 +1,5 @@
-type CSSPropertiesExportedData = {
-  readonly [key: string]: CSSPropertiesExportedData | string
+interface CSSPropertiesExportedData {
+  readonly [key: string]: Record<string, any> | string
 }
 
 declare module '*.css?export' {
