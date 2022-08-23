@@ -43,12 +43,12 @@ pnpm add vite-plugin-css-export -D
 
 ```typescript
 // vite.config.ts
-import ViteCSSExportPlugin from "vite-plugin-css-export";
-import { defineConfig } from "vite";
+import ViteCSSExportPlugin from 'vite-plugin-css-export'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [ViteCSSExportPlugin()],
-});
+  plugins: [ViteCSSExportPlugin()]
+})
 ```
 
 ```css
@@ -101,7 +101,7 @@ Use the suffix `?export`.
 // main.ts
 import cssResult from './assets/style/example.css?export'
 
-console.log(cssResult);
+console.log(cssResult)
 
 // output
 // {
@@ -124,7 +124,7 @@ console.log(cssResult);
 
 If you are using CSS preprocessor then you can use nested rules.
 
-``` scss
+```scss
 // .scss
 :root {
   --font-color: #333;
@@ -136,12 +136,12 @@ $menuItemBgColor: #1d243a;
   fontColor: var(--font-color);
   fontSize: 14px;
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
@@ -152,10 +152,10 @@ $menuItemBgColor: #1d243a;
 
 When used with CSS Module, some simple configuration is required. By default, the exported results will not include CSS Module related content (except what's in `:export`) .
 
-``` typescript
+```typescript
 // vite.config.ts
-import ViteCSSExportPlugin from "vite-plugin-css-export";
-import { defineConfig } from "vite";
+import ViteCSSExportPlugin from 'vite-plugin-css-export'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
@@ -170,7 +170,7 @@ export default defineConfig({
 })
 ```
 
-``` scss
+```scss
 // example.module.scss
 :root {
   --font-color: #333;
@@ -183,17 +183,17 @@ $menuItemBgColor: #1d243a;
 }
 
 :share {
-  fontColor: var(--font-color);
-  fontSize: 14px;
+  fontcolor: var(--font-color);
+  fontsize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
@@ -206,7 +206,7 @@ $menuItemBgColor: #1d243a;
 }
 ```
 
-``` typescript
+```typescript
 // main.ts
 import cssModuleResult from './assets/style/example.module.scss?export'
 
@@ -255,34 +255,34 @@ console.log(cssModuleResult)
 
 Please do not type the following characters in property names:
 
-``` bash
+```bash
 
-"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*", "\", "-"
+"/", "~", ">", "<", "[", "]", "(", ")", ".", "#", "@", ":", "*"
 ```
 
 Because this plugin is applied after `vite:css`, all parsing actions are based on the result returned by `vite:css`. When you type the above characters, there are some characters that the plugin cannot give correct warning/error message, for example: `@`
 
-``` scss
+```scss
 // your code
 :export {
   fontColor: var(--font-color);
   fontSize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   @menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }
 }
 ```
 
-``` css
+```css
 /** after vite:css */
 :export {
   fontColor: var(--font-color);
@@ -301,7 +301,7 @@ Because this plugin is applied after `vite:css`, all parsing actions are based o
 }
 ```
 
-``` javascript
+```javascript
 // after vite:css-export
 {
   fontColor: "var(--font-color)",
@@ -324,27 +324,29 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 
 #### VS Code
 
-``` json
+```json
 {
   "css.lint.unknownProperties": "ignore",
   "scss.lint.unknownProperties": "ignore",
-  "less.lint.unknownProperties": "ignore",
+  "less.lint.unknownProperties": "ignore"
 }
-
 ```
 
 #### Stylelint
 
-``` json
+```json
 {
   "rules": {
     "property-no-unknown": [true, {
       "ignoreSelectors": [":export", ":share"]
     }],
     "property-case": null,
-    "selector-pseudo-class-no-unknown": [true, {
-      "ignorePseudoClasses": ["export", "share"]
-    }]
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["export", "share"]
+      }
+    ]
   }
 }
 ```
@@ -353,13 +355,13 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 
 ### propertyNameTransformer
 
-* **type:** `(key: string) => string`
+- **type:** `(key: string) => string`
 
-* **default:** `undefined`
+- **default:** `undefined`
 
-* **description:** The option allows you to define a method for transforming CSS property names, but doesn`t transform additionalData. The plugin has some built-in methods. Usage:
+- **description:** The option allows you to define a method for transforming CSS property names, but doesn`t transform additionalData. The plugin has some built-in methods. Usage:
 
-``` typescript
+```typescript
 // vite.config.ts
 import {
   default as ViteCSSExportPlugin,
@@ -379,36 +381,36 @@ export default defineConfig({
 
 ### additionalData
 
-* **type:** `SharedCSSData`
+- **type:** `SharedCSSData`
 
-* **default:** `{}`
+- **default:** `{}`
 
-* **description:** The option allows you to append data to all processed results, we can share some common variables here.
+- **description:** The option allows you to append data to all processed results, we can share some common variables here.
 
 ### cssModule
 
 #### cssModule.isGlobalCSSModule
 
-* **type:** `boolean`
+- **type:** `boolean`
 
-* **default:** `false`
+- **default:** `false`
 
-* **description:** Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
+- **description:** Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
 
 #### cssModule.enableExportMerge
 
-* **type:** `boolean`
+- **type:** `boolean`
 
-* **default:** `false`
+- **default:** `false`
 
-* **description:** When value is true, `sharedData` will be merged with the result of CSS Module, otherwise only `sharedData` will be exported.
+- **description:** When value is true, `sharedData` will be merged with the result of CSS Module, otherwise only `sharedData` will be exported.
 
-> *`sharedData` is the parsed result of the plugin.*
+> _`sharedData` is the parsed result of the plugin._
 
 #### cssModule.sharedDataExportName
 
-* **type:** `string`
+- **type:** `string`
 
-* **default:** `'sharedData'`
+- **default:** `'sharedData'`
 
-* **description:** When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
+- **description:** When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
