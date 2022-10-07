@@ -14,7 +14,7 @@ export default defineConfig({
       },
       cssModule: {
         isGlobalCSSModule: false,
-        enableExportMerge: false,
+        enableExportMerge: true,
         sharedDataExportName: 'cssExportedData',
       },
       propertyNameTransformer: kebabCaseToUpperCamelCase

@@ -150,21 +150,20 @@ function hijackCSSPostPlugin(
 ): void {
   if (cssPostPlugin.transform) {
 
-    const _transform = cssPostPlugin.transform
+    const _transform = cssPostPlugin.transform as Function
     cssPostPlugin.transform = async function (this: any, ...args: any[]) {
       const id = args[1]
       // result of vite:post
       const result = (await _transform.apply(this, args as any)) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
       if (isCSSRequest(id) && exportRE?.test(id)) {
-        if (config.command === "serve") {
-          return vitePostCodeHandler.call(this, id, (result as string), cssModuleOptions, parseResultCache)
-        }
-        else {
+        if (typeof result !== "string" && (result as SourceDescription).code) {
           (result as SourceDescription).code = vitePostCodeHandler.call(this, id, (result as SourceDescription).code, cssModuleOptions, parseResultCache)
           return result
         }
-
+        else {
+          return vitePostCodeHandler.call(this, id, (result as string), cssModuleOptions, parseResultCache)
+        }
       } else {
         return result
       }
