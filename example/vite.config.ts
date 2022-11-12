@@ -18,9 +18,7 @@ export default defineConfig({
         sharedDataExportName: 'cssExportedData',
       },
       propertyNameTransformer: kebabCaseToUpperCamelCase,
-      // this is the default case, omit this field if this regex suits your needs
-      shouldTransform: (id) => /(\?|&)export(?:&|$)/.test(id)
-        || id.endsWith('shouldTransformString'),
+      shouldTransform: (id) => /(\?|&)export(?:&|$)/.test(id) || id.endsWith('shouldTransformString'),
     }),
     Inspect()
   ]
