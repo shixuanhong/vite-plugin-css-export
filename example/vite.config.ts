@@ -17,7 +17,8 @@ export default defineConfig({
         enableExportMerge: true,
         sharedDataExportName: 'cssExportedData',
       },
-      propertyNameTransformer: kebabCaseToUpperCamelCase
+      propertyNameTransformer: kebabCaseToUpperCamelCase,
+      shouldTransform: (id) => /(\?|&)export(?:&|$)/.test(id) || id.endsWith('shouldTransformString'),
     }),
     Inspect()
   ]

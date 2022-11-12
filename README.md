@@ -414,3 +414,13 @@ export default defineConfig({
 - **default:** `'sharedData'`
 
 - **description:** When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
+
+### shouldTransform
+
+- **type:** `(id: string) => boolean`
+
+- **default:** `undefined`
+
+- **description:** The option allows you to specify a boolean function which determines whether or not to transform a given module. The function takes in an `id`, or the name of the import (e.g. `example/assets/style/example-transformer.scss?export`), and returns `true` if the module is to be transformed or `false` otherwise.
+
+Note that by default, the package transforms all imports suffixed by `?export`, or more specifically matching the `regex` `/(\?|&)export(?:&|$)/`.

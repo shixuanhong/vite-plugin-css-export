@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import cssResult from './assets/style/example.css?export'
-import scssResult from './assets/style/example.scss?export'
+import scssResult from './assets/style/example.scss?export&shouldTransformString'
 import sassResult from './assets/style/example.sass?export'
 import lessResult from './assets/style/example.less?export'
 import stylResult from './assets/style/example.styl?export'
