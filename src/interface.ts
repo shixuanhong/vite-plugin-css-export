@@ -48,6 +48,13 @@ export interface ViteCSSExportPluginOptions {
    * @memberof ViteCSSExportPluginOptions
    */
   cssModule?: CSSModuleOptions
+  /**
+   * Boolean function to determine if a stylesheet should be exported.
+   * Default is a suffix of `?export`
+   * 
+   * @memberof ViteCSSExportPluginOptions
+   */
+  shouldTransform?: (id: string) => boolean;
 }
 
 export interface SharedCSSData {
