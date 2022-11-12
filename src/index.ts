@@ -146,7 +146,8 @@ function hijackCSSPostPlugin(
   cssPostPlugin: Plugin,
   config: ResolvedConfig,
   cssModuleOptions: CSSModuleOptions,
-  parseResultCache: Map<string, ParseResult>
+  parseResultCache: Map<string, ParseResult>,
+  shouldTransform?: (id: string) => boolean;
 ): void {
   if (cssPostPlugin.transform) {
 
@@ -156,7 +157,7 @@ function hijackCSSPostPlugin(
       // result of vite:post
       const result = (await _transform.apply(this, args as any)) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
-      if (isCSSRequest(id) && exportRE?.test(id)) {
+      if (isCSSRequest(id) && shouldTransform ? (shouldTransform(id) : exportRE?.test(id))) {
         if (typeof result !== "string" && (result as SourceDescription).code) {
           (result as SourceDescription).code = vitePostCodeHandler.call(this, id, (result as SourceDescription).code, cssModuleOptions, parseResultCache)
           return result
@@ -192,13 +193,13 @@ export default function ViteCSSExportPlugin(
         (item) => item.name === 'vite:css-post'
       )
       cssPostPlugin &&
-        hijackCSSPostPlugin(cssPostPlugin, config, cssModule, parseResultCache)
+        hijackCSSPostPlugin(cssPostPlugin, config, cssModule, parseResultCache, options.shouldTransform)
     },
     buildStart() {
       parseResultCache.clear()
     },
     async transform(code, id, options) {
-      if (isCSSRequest(id) && exportRE.test(id)) {
+      if (isCSSRequest(id) && options.shouldTransform ? (options.shouldTransform(id) : exportRE?.test(id))) {
         const parseResult = parseCode.call(this as TransformPluginContext, code, propertyNameTransformer)
         // append additionalData
         Object.assign(parseResult.sharedData, additionalData)
