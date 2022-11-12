@@ -35,7 +35,7 @@ declare module '*.stylus?export' {
 /**
  * If `shouldTransform` is used, you must handle type checking for special cases like this yourself.
  */
-declare module '*.scss?export&shouldTransformString' {
+declare module '*.scss?shouldTransformString' {
   const cssExportVariables: CSSPropertiesExportedData
   export default cssExportVariables
 }
