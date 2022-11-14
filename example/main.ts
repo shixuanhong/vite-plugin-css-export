@@ -9,6 +9,7 @@ import stylResult from './assets/style/example.styl?export'
 import stylusResult from './assets/style/example.stylus?export'
 import cssModuleResult from './assets/style/example.module.scss?export'
 import transformerResult from './assets/style/example-transformer.scss?export'
+import shouldTransformResult from "./assets/style/share-to-js/index.scss";
 
 console.log('.css', cssResult)
 console.log('.scss', scssResult)
@@ -18,5 +19,6 @@ console.log('.styl', stylResult)
 console.log('.stylus', stylusResult)
 console.log('css module', cssModuleResult)
 console.log('transformer', transformerResult)
+console.log('shouldTransformResult', shouldTransformResult)
 
 createApp(App).mount('#app')

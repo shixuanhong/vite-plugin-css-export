@@ -4,7 +4,6 @@ import { parse } from 'postcss'
 import {
   drillDown,
   isProgram,
-  isAcornNode,
   clearExportNamedDeclaration
 } from './utils'
 import type { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData, ParseResult } from './interface'
@@ -18,6 +17,7 @@ export {
 
 export * from './transformer'
 
+let shouldTransform: ViteCSSExportPluginOptions['shouldTransform']
 const exportRE = /(\?|&)export(?:&|$)/
 const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
@@ -45,6 +45,8 @@ const defaultCSSModuleOptions: CSSModuleOptions = {
 
 const isCSSRequest = (request: string): boolean =>
   cssLangRE.test(request)
+
+const isTransform = (id: string): boolean => shouldTransform ? (shouldTransform(id) || exportRE.test(id)) : exportRE.test(id)
 
 /**
  * parse css code after vite:css
@@ -156,7 +158,7 @@ function hijackCSSPostPlugin(
       // result of vite:post
       const result = (await _transform.apply(this, args as any)) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
-      if (isCSSRequest(id) && exportRE?.test(id)) {
+      if (isCSSRequest(id) && isTransform(id)) {
         if (typeof result !== "string" && (result as SourceDescription).code) {
           (result as SourceDescription).code = vitePostCodeHandler.call(this, id, (result as SourceDescription).code, cssModuleOptions, parseResultCache)
           return result
@@ -181,7 +183,10 @@ export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
   const pluginName = 'vite:css-export'
-  const { cssModule = defaultCSSModuleOptions, additionalData = {}, propertyNameTransformer } = options
+  const { cssModule = defaultCSSModuleOptions, additionalData = {}, propertyNameTransformer, shouldTransform: _shouldTransform } = options
+
+  shouldTransform = _shouldTransform
+
   const parseResultCache = new Map<string, ParseResult>()
   let config
   return {
@@ -197,8 +202,8 @@ export default function ViteCSSExportPlugin(
     buildStart() {
       parseResultCache.clear()
     },
-    async transform(code, id, options) {
-      if (isCSSRequest(id) && exportRE.test(id)) {
+    async transform(code, id, _options) {
+      if (isCSSRequest(id) && isTransform(id)) {
         const parseResult = parseCode.call(this as TransformPluginContext, code, propertyNameTransformer)
         // append additionalData
         Object.assign(parseResult.sharedData, additionalData)

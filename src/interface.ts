@@ -29,6 +29,19 @@ export interface CSSModuleOptions {
 }
 export interface ViteCSSExportPluginOptions {
   /**
+   * This option allows you to additionally specify which style files should be transformed, not just `?export` or `?share`.
+   *
+   * ``` typescript
+   *  shouldTransform(id) {
+   *    const include = path.resolve(process.cwd(), 'example/assets/style/share-to-js')
+   *    return path.resolve(id).indexOf(include) > -1
+   *  }
+   * ```
+   * 
+   * @memberof ViteCSSExportPluginOptions
+   */
+  shouldTransform?: (id: string) => boolean
+  /**
    * The option allows you to define a method for transforming CSS property names, but doesn`t transform additionalData.
    *
    * @memberof ViteCSSExportPluginOptions
