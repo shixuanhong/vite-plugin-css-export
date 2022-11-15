@@ -339,14 +339,23 @@ console.log(cssModuleResult)
 ```json
 {
   "rules": {
-    "property-no-unknown": [true, {
-      "ignoreSelectors": [":export", ":share"]
-    }],
+    "property-no-unknown": [
+      true, 
+      {
+        "ignoreSelectors": [":export", ":share"]
+      }
+    ],
     "property-case": null,
     "selector-pseudo-class-no-unknown": [
       true,
       {
         "ignorePseudoClasses": ["export", "share"]
+      }
+    ],
+    "selector-type-no-unknown":[
+      true,
+      {
+        "ignore": ["default-namespace"]
       }
     ]
   }
@@ -354,6 +363,31 @@ console.log(cssModuleResult)
 ```
 
 ## 配置项 ⚙️
+
+### shouldTransform
+
+- **type:** `(id: string) => boolean`
+
+- **default:** `undefined`
+
+- **description:** 该选项允许你额外指定哪些样式文件应该被转换，而不仅仅是`?export`，用法如下：
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  plugins: [
+    ViteCSSExportPlugin({
+      shouldTransform(id) {
+        const include = path.resolve(
+          process.cwd(),
+          'example/assets/style/share-to-js'
+        )
+        return path.resolve(id).indexOf(include) > -1
+      }
+    })
+  ]
+})
+```
 
 ### propertyNameTransformer
 

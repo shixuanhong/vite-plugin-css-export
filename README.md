@@ -78,7 +78,7 @@ export default defineConfig({
 // env.d.ts
 /// <reference types="vite-plugin-css-export/client" />
 
-// if you want IntelliSense 
+// if you want IntelliSense
 interface CSSPropertiesExportedData {
   fontColor: string
   fontSize: string
@@ -87,7 +87,7 @@ interface CSSPropertiesExportedData {
     color: string
   }
   menu: {
-    menuItem:{
+    menuItem: {
       bgColor: string
       color: string
     }
@@ -337,14 +337,23 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 ```json
 {
   "rules": {
-    "property-no-unknown": [true, {
-      "ignoreSelectors": [":export", ":share"]
-    }],
+    "property-no-unknown": [
+      true, 
+      {
+        "ignoreSelectors": [":export", ":share"]
+      }
+    ],
     "property-case": null,
     "selector-pseudo-class-no-unknown": [
       true,
       {
         "ignorePseudoClasses": ["export", "share"]
+      }
+    ],
+    "selector-type-no-unknown":[
+      true,
+      {
+        "ignore": ["default-namespace"]
       }
     ]
   }
@@ -352,6 +361,31 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 ```
 
 ## Options ⚙️
+
+### shouldTransform
+
+- **type:** `(id: string) => boolean`
+
+- **default:** `undefined`
+
+- **description:** This option allows you to additionally specify which style files should be transformed, not just `?export`. Usage:
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  plugins: [
+    ViteCSSExportPlugin({
+      shouldTransform(id) {
+        const include = path.resolve(
+          process.cwd(),
+          'example/assets/style/share-to-js'
+        )
+        return path.resolve(id).indexOf(include) > -1
+      }
+    })
+  ]
+})
+```
 
 ### propertyNameTransformer
 

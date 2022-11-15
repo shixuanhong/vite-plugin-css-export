@@ -29,7 +29,7 @@ export interface CSSModuleOptions {
 }
 export interface ViteCSSExportPluginOptions {
   /**
-   * This option allows you to additionally specify which style files should be transformed, not just `?export` or `?share`.
+   * This option allows you to additionally specify which style files should be transformed, not just `?export`.
    *
    * ``` typescript
    *  shouldTransform(id) {
