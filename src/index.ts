@@ -66,15 +66,15 @@ function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTr
       let nameErrorValidResult = nameErrorValidRE.exec(selector)
       if (nameErrorValidResult && nameErrorValidResult.length > 0) {
         this.error(
-          `the property name cannot contain the characters: ${errorCharacterArr.map(c => `"${c}"`).join(', ')}\n`,
+          `The property name cannot contain the characters: ${errorCharacterArr.map(c => `"${c}"`).join(', ')}.\n`,
           ruleNode.positionInside(nameErrorValidResult.index)
         )
       } else {
         // warning 
         let nameWarnValidResult = nameWarnValidRE.exec(selector)
-        if (nameWarnValidResult && nameWarnValidResult.length > 0) {
+        if (!propertyNameTransformer && nameWarnValidResult && nameWarnValidResult.length > 0) {
           this.warn(
-            `the property name should not contain the characters: ${warnCharacterArr.map(c => `"${c}"`).join(', ')}\n`,
+            `The property name should not contain the characters: ${warnCharacterArr.map(c => `"${c}"`).join(', ')}. Use option propertyNameTransformer to suppress this warning.`,
             ruleNode.positionInside(nameWarnValidResult.index)
           )
         }
