@@ -2,7 +2,7 @@
 
 [中文](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README_zh-CN.md) | [English](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README.md)
 
-**A Vite plugin for sharing variables between Javascript and CSS.**
+**Export variables from CSS to JS, and support nested rules.**
 
 <p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
@@ -10,14 +10,11 @@
   <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/dependency-version/vite-plugin-css-export/peer/vite" alt="vite compatibility"></a>
 </p>
 
-This plugin allows you to use a pseudo-class called `:export` in CSS, and properties in this pseudo-class will be exported to Javascript.
+This plugin allows you to use a pseudo-class called `:export` in CSS, and properties in this pseudo-class will be exported to JavaScript.
 
 Besides that, with the help of Vite, we can use `:export` in .scss, .sass, .less, .styl and .stylus files.
 
-[How to use css preprocessors in Vite](https://vitejs.dev/guide/features.html#css-pre-processors)
-
-> **Notice:**
-> If the plugin is used with CSS Module, please replace `:export` with `:share` to avoid conflicts with `:export` provided by CSS Module (just having the same name doesn't cause them to run with errors) . `:share` is an alias for `:export`.
+[How to use css pre-processors in Vite](https://vitejs.dev/guide/features.html#css-pre-processors)
 
 ## Install ❤️
 
@@ -120,9 +117,9 @@ console.log(cssResult)
 // }
 ```
 
-### CSS Preprocessor
+### CSS Pre-processor
 
-If you are using CSS preprocessor then you can use nested rules.
+If you are using CSS pre-processor then you can use nested rules.
 
 ```scss
 // .scss
@@ -150,7 +147,7 @@ $menuItemBgColor: #1d243a;
 
 ### CSS Module
 
-When used with CSS Module, some simple configuration is required. By default, the exported results will not include CSS Module related content (except what's in `:export`) .
+When used with CSS module, some simple configuration is required. By default, the exported results will not include CSS module related content (except what's in `:export`) .
 
 ```typescript
 // vite.config.ts
@@ -182,6 +179,7 @@ $menuItemBgColor: #1d243a;
   background-color: transparent;
 }
 
+// alias for :export
 :share {
   fontcolor: var(--font-color);
   fontsize: 14px;
@@ -199,7 +197,6 @@ $menuItemBgColor: #1d243a;
   }
 }
 
-// conflict
 :export {
   fontColor: var(--font-color);
   fontSize: 14px;
@@ -212,7 +209,7 @@ import cssModuleResult from './assets/style/example.module.scss?export'
 
 console.log(cssModuleResult)
 
-//output
+// output
 // {
 //     cssExportedData: {
 //         fontColor: "var(--font-color)",
@@ -252,6 +249,10 @@ console.log(cssModuleResult)
 ```
 
 ### Note ⚠
+
+If the plugin is used with CSS module, please replace `:export` with `:share` to avoid unknown conflicts with `:export` provided by CSS module.
+
+> In fact you can still use `:export`, which won't cause a runtime error, `:share` is an alias for `:export`.
 
 Please do not type the following characters in property names:
 
@@ -429,7 +430,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** Whether the CSS Module is used globally, not just in the `.module.[suffix]` file.
+- **description:** Whether the CSS module is used globally, not just in the `.module.[suffix]` file.
 
 #### cssModule.enableExportMerge
 
@@ -437,7 +438,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** When value is true, `sharedData` will be merged with the result of CSS Module, otherwise only `sharedData` will be exported.
+- **description:** When value is true, `sharedData` will be merged with the result of CSS module, otherwise only `sharedData` will be exported.
 
 > _`sharedData` is the parsed result of the plugin._
 

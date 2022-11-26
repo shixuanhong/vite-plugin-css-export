@@ -2,7 +2,7 @@
 
 [中文](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README_zh-CN.md) | [English](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README.md)
 
-**一个用于在 CSS 和 Javascript 之间共享变量的 Vite 插件。**
+**从CSS导出变量到JS中，并且支持嵌套规则。**
 
 <p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
@@ -10,14 +10,11 @@
   <a href="https://www.npmjs.com/package/vite"><img src="https://img.shields.io/npm/dependency-version/vite-plugin-css-export/peer/vite" alt="vite compatibility"></a>
 </p>
 
-这个插件允许你在 CSS 中使用 `:export` 伪类，并且这个伪类下的属性将会被导出到 Javascript 中。
+这个插件允许你在 CSS 中使用 `:export` 伪类，并且这个伪类下的属性将会被导出到 JavaScript 中。
 
 除此之外，如果在 Vite 中启用了 CSS 预处理器，那我们就可以在 .scss、.sass、.less、.styl 和 .stylus 文件中使用 `:export`。
 
 [如何在 Vite 中使用 CSS 预处理器](https://vitejs.dev/guide/features.html#css-pre-processors)
-
-> **注意：**
-> 如果插件与 CSS Module 一起使用，请将 `:export` 替换为 `:share` ，这样做可以避免与 CSS Module 提供的 `:export` 冲突（仅是名称相同，并不会导致两者运行出错）。 `:share` 是 `:export` 的别名。
 
 ## 安装 ❤️
 
@@ -151,7 +148,7 @@ $menuItemBgColor: #1d243a;
 
 ### CSS Module
 
-与 CSS Module 一起使用时，需要进行一些简单的配置，默认情况下，导出的结果中不会包含 CSS Module 的相关内容（除了`:export`下的内容）。
+与 CSS module 一起使用时，需要进行一些简单的配置，默认情况下，导出的结果中不会包含 CSS module 的相关内容（除了`:export`下的内容）。
 
 ```typescript
 // vite.config.ts
@@ -183,6 +180,7 @@ $menuItemBgColor: #1d243a;
   background-color: transparent;
 }
 
+// :export 的别名
 :share {
   fontcolor: var(--font-color);
   fontsize: 14px;
@@ -200,8 +198,6 @@ $menuItemBgColor: #1d243a;
   }
 }
 
-// 仅是名称冲突，并不会影响CSS Module和该插件同时正常的运行
-// 最终的结果是:export与:share的并集，因为:share仅是:export的别名。
 :export {
   fontColor: var(--font-color);
   fontSize: 14px;
@@ -214,7 +210,7 @@ import cssModuleResult from './assets/style/example.module.scss?export'
 
 console.log(cssModuleResult)
 
-//output
+// output
 // {
 //     cssExportedData: {
 //         fontColor: "var(--font-color)",
@@ -235,7 +231,7 @@ console.log(cssModuleResult)
 //     "base-button": "_base-button_1k9w3_5" // css module
 // }
 
-// 当 enableExportMerge 为 false时，将不会包含CSS Module的相关内容
+// 当 enableExportMerge 为 false时，将不会包含CSS module的相关内容
 // output
 // {
 //     fontColor: "var(--font-color)",
@@ -254,6 +250,10 @@ console.log(cssModuleResult)
 ```
 
 ### 注意 ⚠
+
+如果插件与 CSS module 一起使用，请将 `:export` 替换为 `:share` ，这样做可以避免与 CSS module 提供的`:export`之间的未知冲突。
+
+> 实际上你仍然可以使用`:export`，它并不会导致运行错误，`:share` 是 `:export` 的别名。
 
 请不要在属性名称中键入以下字符：
 
@@ -431,7 +431,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** 是否在全局启用了 CSS Module，而不仅仅是在 `.module.[suffix]` 文件中。
+- **description:** 是否在全局启用了 CSS module，而不仅仅是在 `.module.[suffix]` 文件中。
 
 #### cssModule.enableExportMerge
 
@@ -439,7 +439,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** 当值为 true 时, `sharedData` 将会和 CSS Module 的内容合并后再导出, 否则只有 `sharedData` 会被导出。
+- **description:** 当值为 true 时, `sharedData` 将会和 CSS module 的内容合并后再导出, 否则只有 `sharedData` 会被导出。
 
 > _`sharedData` 是本插件处理 CSS 内容后的结果_
 
