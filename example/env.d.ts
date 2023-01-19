@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="../client" />
 
 interface CSSPropertiesExportedData {
   fontColor: string
@@ -8,7 +9,7 @@ interface CSSPropertiesExportedData {
     color: string
   }
   menu: {
-    menuItem:{
+    menuItem: {
       bgColor: string
       color: string
     }
@@ -20,4 +21,10 @@ declare module '*.vue' {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
   const component: DefineComponent<{}, {}, any>
   export default component
+}
+
+declare module '*.module.scss?export' {
+  const cssExportVariables: CSSPropertiesExportedData
+  export const cssExportedData: CSSPropertiesExportedData
+  export default cssExportVariables
 }

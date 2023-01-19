@@ -18,7 +18,8 @@ export {
 export * from './transformer'
 
 let shouldTransform: ViteCSSExportPluginOptions['shouldTransform']
-const exportRE = /(\?|&)export(?:&|$)/
+const exportRE = /(?:\?|&)export\b/
+const inlineRE = /(?:\?|&)inline\b/
 const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`
 const cssLangRE = new RegExp(cssLangs)
 const cssModuleRE = new RegExp(`\\.module${cssLangs}`)
@@ -106,7 +107,7 @@ function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptio
   const ast = this.parse(code) as acorn.Node | Program
   const parseResult = parseResultCache.get(id)
   let sharedAst = this.parse(
-    dataToEsm(parseResult?.sharedData, {
+    dataToEsm(parseResult.sharedData, {
       namedExports: true,
       preferConst: true
     })
@@ -115,11 +116,16 @@ function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptio
   // compatible with css module
   if (cssModuleRE.test(id) || isGlobalCSSModule) {
     if (enableExportMerge) {
+      if (inlineRE.test(id)) {
+        return `export const ${sharedDataExportName} = ${JSON.stringify(
+          parseResult.sharedData
+        )}\n${code}`
+      }
       return code.replace(
         /export default\s*\{/,
         [
           `export const ${sharedDataExportName} = ${JSON.stringify(
-            parseResult?.sharedData
+            parseResult.sharedData
           )}`,
           `export default { ${sharedDataExportName},`
         ].join('\n')
@@ -204,7 +210,7 @@ export default function ViteCSSExportPlugin(
     },
     async transform(code, id, _options) {
       if (isCSSRequest(id) && isTransform(id)) {
-        const parseResult = parseCode.call(this as TransformPluginContext, code, propertyNameTransformer)
+        const parseResult = parseCode.call(this, code, propertyNameTransformer)
         // append additionalData
         Object.assign(parseResult.sharedData, additionalData)
         // cache the current parseResult for use in vite:post
