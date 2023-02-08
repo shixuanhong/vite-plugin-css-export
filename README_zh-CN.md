@@ -439,7 +439,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** 当值为 true 时, `sharedData` 将会和 CSS module 的内容合并后再导出, 否则只有 `sharedData` 会被导出。
+- **description:** 当值为 true 时, `sharedData` 将会和 CSS module 的内容合并后再导出, 否则只有 `sharedData` 会被导出。它在使用`?inline`时不会生效。
 
 > _`sharedData` 是本插件处理 CSS 内容后的结果_
 
@@ -449,4 +449,4 @@ export default defineConfig({
 
 - **default:** `'sharedData'`
 
-- **description:** 当 `cssModule.enableExportMerge` 值为 true 时, 修改导出结果中 `sharedData` 的属性名称。
+- **description:** 当 `cssModule.enableExportMerge` 值为 true 时, 修改导出结果中 `sharedData` 的属性名称。它在使用`?inline`时不会生效。

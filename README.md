@@ -438,7 +438,7 @@ export default defineConfig({
 
 - **default:** `false`
 
-- **description:** When value is true, `sharedData` will be merged with the result of CSS module, otherwise only `sharedData` will be exported.
+- **description:** When value is true, `sharedData` will be merged with the result of CSS module, otherwise only `sharedData` will be exported. It won't work when using `?inline`
 
 > _`sharedData` is the parsed result of the plugin._
 
@@ -448,4 +448,4 @@ export default defineConfig({
 
 - **default:** `'sharedData'`
 
-- **description:** When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result.
+- **description:** When `cssModule.enableExportMerge` is true, modify the property name of `sharedData` in the merged result. It won't work when using `?inline`
