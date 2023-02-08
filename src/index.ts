@@ -115,12 +115,7 @@ function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptio
 
   // compatible with css module
   if (cssModuleRE.test(id) || isGlobalCSSModule) {
-    if (enableExportMerge) {
-      if (inlineRE.test(id)) {
-        return `export const ${sharedDataExportName} = ${JSON.stringify(
-          parseResult.sharedData
-        )}\n${code}`
-      }
+    if (enableExportMerge && !inlineRE.test(id)) {
       return code.replace(
         /export default\s*\{/,
         [
@@ -134,18 +129,16 @@ function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptio
       // override
       // clear all named exports, exclude /^__vite__/
       clearExportNamedDeclaration(ast, /^__vite__/)
-      isProgram(ast) && (ast.body = ast.body.concat(sharedAst.body))
     }
-  } else {
-    if (isProgram(ast)) {
-      // remove the original default export
-      const defaultIndex = ast.body.findIndex(
-        (item: { type: string }) =>
-          item.type === 'ExportDefaultDeclaration'
-      )
-      defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
-      ast.body = ast.body.concat(sharedAst.body)
-    }
+  }
+  if (isProgram(ast)) {
+    // remove the original default export
+    const defaultIndex = ast.body.findIndex(
+      (item: { type: string }) =>
+        item.type === 'ExportDefaultDeclaration'
+    )
+    defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
+    ast.body = ast.body.concat(sharedAst.body)
   }
   return escodegen.generate(ast)
 }

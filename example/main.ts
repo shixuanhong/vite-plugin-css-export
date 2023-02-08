@@ -7,7 +7,7 @@ import sassResult from './assets/style/example.sass?export&inline'
 import lessResult from './assets/style/example.less?export&inline'
 import stylResult from './assets/style/example.styl?export&inline'
 import stylusResult from './assets/style/example.stylus?export&inline'
-import { default as cssModuleResult, cssExportedData } from './assets/style/example.module.scss?export&inline'
+import { default as cssModuleResult, cssExportedData } from './assets/style/example.module.scss?export'
 import transformerResult from './assets/style/example-transformer.scss?export&inline'
 import shouldTransformResult from "./assets/style/share-to-js/index.scss?inline";
 

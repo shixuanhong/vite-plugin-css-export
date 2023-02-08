@@ -24,7 +24,10 @@ declare module '*.vue' {
 }
 
 declare module '*.module.scss?export' {
-  const cssExportVariables: CSSPropertiesExportedData
   export const cssExportedData: CSSPropertiesExportedData
-  export default cssExportVariables
+  const cssModuleResult: {
+    [key: string]: any
+    cssExportedData: CSSPropertiesExportedData
+  }
+  export default cssModuleResult
 }
