@@ -339,7 +339,7 @@ You may get some warnings from the editor or Stylelint, you can disable related 
 {
   "rules": {
     "property-no-unknown": [
-      true, 
+      true,
       {
         "ignoreSelectors": [":export", ":share"]
       }
@@ -351,7 +351,7 @@ You may get some warnings from the editor or Stylelint, you can disable related 
         "ignorePseudoClasses": ["export", "share"]
       }
     ],
-    "selector-type-no-unknown":[
+    "selector-type-no-unknown": [
       true,
       {
         "ignore": ["default-namespace"]

@@ -2,7 +2,7 @@
 
 [中文](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README_zh-CN.md) | [English](https://github.com/shixuanhong/vite-plugin-css-export/blob/main/README.md)
 
-**从CSS导出变量到JS中，并且支持嵌套规则。**
+**从 CSS 导出变量到 JS 中，并且支持嵌套规则。**
 
 <p align="left">
   <a href="https://npmjs.com/package/vite-plugin-css-export"><img src="https://img.shields.io/npm/v/vite-plugin-css-export" alt="npm package"></a>
@@ -85,7 +85,7 @@ interface CSSPropertiesExportedData {
     color: string
   }
   menu: {
-    menuItem:{
+    menuItem: {
       bgColor: string
       color: string
     }
@@ -340,7 +340,7 @@ console.log(cssModuleResult)
 {
   "rules": {
     "property-no-unknown": [
-      true, 
+      true,
       {
         "ignoreSelectors": [":export", ":share"]
       }
@@ -352,7 +352,7 @@ console.log(cssModuleResult)
         "ignorePseudoClasses": ["export", "share"]
       }
     ],
-    "selector-type-no-unknown":[
+    "selector-type-no-unknown": [
       true,
       {
         "ignore": ["default-namespace"]

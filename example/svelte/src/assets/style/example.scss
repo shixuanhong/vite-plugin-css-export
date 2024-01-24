@@ -13,13 +13,13 @@ $menuItemBgColor: #1d243a;
   fontSize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }

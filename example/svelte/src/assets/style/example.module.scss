@@ -9,17 +9,17 @@ $menuItemBgColor: #1d243a;
 }
 
 :share {
-  fontColor: var(--font-color);
-  fontSize: 14px;
+  fontcolor: var(--font-color);
+  fontsize: 14px;
 
   button {
-    bgColor: #462dd3;
+    bgcolor: #462dd3;
     color: #fff;
   }
 
   menu {
     menuItem {
-      bgColor: $menuItemBgColor;
+      bgcolor: $menuItemBgColor;
       color: #fff;
     }
   }

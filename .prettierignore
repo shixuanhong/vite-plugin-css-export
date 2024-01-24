@@ -1,2 +1,4 @@
 .prettierignore
 pnpm-lock.yaml
+dist
+LICENSE

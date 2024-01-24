@@ -37,7 +37,7 @@ export interface ViteCSSExportPluginOptions {
    *    return path.resolve(id).indexOf(include) > -1
    *  }
    * ```
-   * 
+   *
    * @memberof ViteCSSExportPluginOptions
    */
   shouldTransform?: (id: string) => boolean
@@ -56,7 +56,7 @@ export interface ViteCSSExportPluginOptions {
   additionalData?: SharedCSSData
   /**
    * Options related to css module.
-   * 
+   *
    * @type {CSSModuleOptions}
    * @memberof ViteCSSExportPluginOptions
    */

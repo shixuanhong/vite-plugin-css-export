@@ -22,11 +22,15 @@ test('kebabCaseToLowerCamelCase: backgroundColor to backgroundcolor', () => {
 })
 
 test('kebabCaseToLowerCamelCase: animation-iteration-count to animationIterationCount', () => {
-  expect(kebabCaseToLowerCamelCase('animation-iteration-count')).toBe('animationIterationCount')
+  expect(kebabCaseToLowerCamelCase('animation-iteration-count')).toBe(
+    'animationIterationCount'
+  )
 })
 
 test('kebabCaseToLowerCamelCase: animation-iteration-count- to animationIterationCount', () => {
-  expect(kebabCaseToLowerCamelCase('animation-iteration-count-')).toBe('animationIterationCount')
+  expect(kebabCaseToLowerCamelCase('animation-iteration-count-')).toBe(
+    'animationIterationCount'
+  )
 })
 
 test('kebabCaseToLowerCamelCase: 1-2-3 to 123', () => {
@@ -60,11 +64,15 @@ test('kebabCaseToUpperCamelCase: BackgroundColor to Backgroundcolor', () => {
 })
 
 test('kebabCaseToUpperCamelCase: animation-iteration-count to AnimationIterationCount', () => {
-  expect(kebabCaseToUpperCamelCase('animation-iteration-count')).toBe('AnimationIterationCount')
+  expect(kebabCaseToUpperCamelCase('animation-iteration-count')).toBe(
+    'AnimationIterationCount'
+  )
 })
 
 test('kebabCaseToUpperCamelCase: animation-iteration-count- to AnimationIterationCount', () => {
-  expect(kebabCaseToUpperCamelCase('animation-iteration-count-')).toBe('AnimationIterationCount')
+  expect(kebabCaseToUpperCamelCase('animation-iteration-count-')).toBe(
+    'AnimationIterationCount'
+  )
 })
 
 test('kebabCaseToUpperCamelCase: 1-2-3 to 123', () => {

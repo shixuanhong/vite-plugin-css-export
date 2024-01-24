@@ -3,23 +3,17 @@ interface CSSPropertiesExportedData {
 }
 
 // css module
-declare module '*.module.css?export' {
-}
+declare module '*.module.css?export' {}
 
-declare module '*.module.scss?export' {
-}
+declare module '*.module.scss?export' {}
 
-declare module '*.module.sass?export' {
-}
+declare module '*.module.sass?export' {}
 
-declare module '*.module.less?export' {
-}
+declare module '*.module.less?export' {}
 
-declare module '*.module.styl?export' {
-}
+declare module '*.module.styl?export' {}
 
-declare module '*.module.stylus?export' {
-}
+declare module '*.module.stylus?export' {}
 
 // css pre-processor
 declare module '*.css?export' {
