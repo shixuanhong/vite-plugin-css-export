@@ -1,19 +1,22 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { dataToEsm } from '@rollup/pluginutils'
 import { parse } from 'postcss'
-import {
-  drillDown,
-  isProgram,
-  clearExportNamedDeclaration
-} from './utils'
-import type { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData, ParseResult } from './interface'
+import { drillDown, clearExportNamedDeclaration } from './utils'
+import type {
+  CSSModuleOptions,
+  ViteCSSExportPluginOptions,
+  SharedCSSData,
+  ParseResult
+} from './interface'
 import type { Program } from 'estree'
-import type { TransformPluginContext, TransformResult, SourceDescription } from 'rollup'
+import type {
+  TransformPluginContext,
+  TransformResult,
+  SourceDescription
+} from 'rollup'
 import escodegen from 'escodegen'
 
-export {
-  CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData
-}
+export { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData }
 
 export * from './transformer'
 
@@ -28,7 +31,21 @@ const matchedList = [':export', ':share']
 const macthingRE = new RegExp(
   `(^(${matchedList.join('|')})$|^(${matchedList.join('|')})\\s)`
 )
-const errorCharacterArr = ['/', '~', '>', '<', '[', ']', '(', ')', '.', '#', '@', ':', '*']
+const errorCharacterArr = [
+  '/',
+  '~',
+  '>',
+  '<',
+  '[',
+  ']',
+  '(',
+  ')',
+  '.',
+  '#',
+  '@',
+  ':',
+  '*'
+]
 const warnCharacterArr = ['\\', '-']
 
 const errorCharacters = '[/~><\\[\\]\\(\\)\\.#@\\:\\*]'
@@ -44,10 +61,10 @@ const defaultCSSModuleOptions: CSSModuleOptions = {
   sharedDataExportName: 'sharedData'
 }
 
-const isCSSRequest = (request: string): boolean =>
-  cssLangRE.test(request)
+const isCSSRequest = (request: string): boolean => cssLangRE.test(request)
 
-const isTransform = (id: string): boolean => shouldTransform ? (shouldTransform(id) || exportRE.test(id)) : exportRE.test(id)
+const isTransform = (id: string): boolean =>
+  shouldTransform ? shouldTransform(id) || exportRE.test(id) : exportRE.test(id)
 
 /**
  * parse css code after vite:css
@@ -56,7 +73,11 @@ const isTransform = (id: string): boolean => shouldTransform ? (shouldTransform(
  * @param {string} cssCode
  * @return {ParseResult}
  */
-function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTransformer?: (key: string) => string): ParseResult {
+function parseCode(
+  this: TransformPluginContext,
+  cssCode: string,
+  propertyNameTransformer?: (key: string) => string
+): ParseResult {
   const sharedData: SharedCSSData = {}
   let otherCode = ''
 
@@ -67,23 +88,42 @@ function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTr
       let nameErrorValidResult = nameErrorValidRE.exec(selector)
       if (nameErrorValidResult && nameErrorValidResult.length > 0) {
         this.error(
-          `The property name cannot contain the characters: ${errorCharacterArr.map(c => `"${c}"`).join(', ')}.\n`,
+          `The property name cannot contain the characters: ${errorCharacterArr
+            .map((c) => `"${c}"`)
+            .join(', ')}.\n`,
           ruleNode.positionInside(nameErrorValidResult.index)
         )
       } else {
-        // warning 
+        // warning
         let nameWarnValidResult = nameWarnValidRE.exec(selector)
-        if (!propertyNameTransformer && nameWarnValidResult && nameWarnValidResult.length > 0) {
+        if (
+          !propertyNameTransformer &&
+          nameWarnValidResult &&
+          nameWarnValidResult.length > 0
+        ) {
           this.warn(
-            `The property name should not contain the characters: ${warnCharacterArr.map(c => `"${c}"`).join(', ')}. Use option propertyNameTransformer to suppress this warning.`,
+            `The property name should not contain the characters: ${warnCharacterArr
+              .map((c) => `"${c}"`)
+              .join(
+                ', '
+              )}. Use option propertyNameTransformer to suppress this warning.`,
             ruleNode.positionInside(nameWarnValidResult.index)
           )
         }
         // assign values to sharedData
-        const levelNames = selector.split(' ').slice(1).map(levelName => propertyNameTransformer ? propertyNameTransformer(levelName) : levelName)
+        const levelNames = selector
+          .split(' ')
+          .slice(1)
+          .map((levelName) =>
+            propertyNameTransformer
+              ? propertyNameTransformer(levelName)
+              : levelName
+          )
         const target = drillDown(sharedData, levelNames)
         ruleNode.walkDecls((declNode) => {
-          let propertyName = propertyNameTransformer ? propertyNameTransformer(declNode.prop) : declNode.prop
+          let propertyName = propertyNameTransformer
+            ? propertyNameTransformer(declNode.prop)
+            : declNode.prop
           target[propertyName] = declNode.value
         })
       }
@@ -98,13 +138,19 @@ function parseCode(this: TransformPluginContext, cssCode: string, propertyNameTr
   } as ParseResult
 }
 
-function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptions: CSSModuleOptions, parseResultCache: Map<string, ParseResult>): string {
+function vitePostCodeHandler(
+  this: any,
+  id: string,
+  code: string,
+  cssModuleOptions: CSSModuleOptions,
+  parseResultCache: Map<string, ParseResult>
+): string {
   const {
     isGlobalCSSModule = false,
     enableExportMerge = false,
     sharedDataExportName = 'sharedData'
   } = cssModuleOptions
-  const ast = this.parse(code) as acorn.Node | Program
+  const ast = this.parse(code) as Program
   const parseResult = parseResultCache.get(id)
   let sharedAst = this.parse(
     dataToEsm(parseResult.sharedData, {
@@ -131,15 +177,13 @@ function vitePostCodeHandler(this: any, id: string, code: string, cssModuleOptio
       clearExportNamedDeclaration(ast, /^__vite__/)
     }
   }
-  if (isProgram(ast)) {
-    // remove the original default export
-    const defaultIndex = ast.body.findIndex(
-      (item: { type: string }) =>
-        item.type === 'ExportDefaultDeclaration'
-    )
-    defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
-    ast.body = ast.body.concat(sharedAst.body)
-  }
+  // remove the original default export
+  const defaultIndex = ast.body.findIndex(
+    (item: { type: string }) => item.type === 'ExportDefaultDeclaration'
+  )
+  defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
+  ast.body = ast.body.concat(sharedAst.body)
+
   return escodegen.generate(ast)
 }
 
@@ -150,20 +194,33 @@ function hijackCSSPostPlugin(
   parseResultCache: Map<string, ParseResult>
 ): void {
   if (cssPostPlugin.transform) {
-
     const _transform = cssPostPlugin.transform as Function
     cssPostPlugin.transform = async function (this: any, ...args: any[]) {
       const id = args[1]
       // result of vite:post
-      const result = (await _transform.apply(this, args as any)) as TransformResult
+      const result = (await _transform.apply(
+        this,
+        args as any
+      )) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
       if (isCSSRequest(id) && isTransform(id)) {
-        if (typeof result !== "string" && (result as SourceDescription).code) {
-          (result as SourceDescription).code = vitePostCodeHandler.call(this, id, (result as SourceDescription).code, cssModuleOptions, parseResultCache)
+        if (typeof result !== 'string' && (result as SourceDescription).code) {
+          ;(result as SourceDescription).code = vitePostCodeHandler.call(
+            this,
+            id,
+            (result as SourceDescription).code,
+            cssModuleOptions,
+            parseResultCache
+          )
           return result
-        }
-        else {
-          return vitePostCodeHandler.call(this, id, (result as string), cssModuleOptions, parseResultCache)
+        } else {
+          return vitePostCodeHandler.call(
+            this,
+            id,
+            result as string,
+            cssModuleOptions,
+            parseResultCache
+          )
         }
       } else {
         return result
@@ -171,7 +228,6 @@ function hijackCSSPostPlugin(
     }
   }
 }
-
 
 /**
  * the plugin is applied after vite:css and before vite:post
@@ -182,7 +238,12 @@ export default function ViteCSSExportPlugin(
   options: ViteCSSExportPluginOptions = {}
 ): Plugin {
   const pluginName = 'vite:css-export'
-  const { cssModule = defaultCSSModuleOptions, additionalData = {}, propertyNameTransformer, shouldTransform: _shouldTransform } = options
+  const {
+    cssModule = defaultCSSModuleOptions,
+    additionalData = {},
+    propertyNameTransformer,
+    shouldTransform: _shouldTransform
+  } = options
 
   shouldTransform = _shouldTransform
 
