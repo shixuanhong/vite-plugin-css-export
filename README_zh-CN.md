@@ -16,6 +16,8 @@
 
 [如何在 Vite 中使用 CSS 预处理器](https://vitejs.dev/guide/features.html#css-pre-processors)
 
+> 注意：Vite5 请使用 3.x，Vite4 请使用 2.x，Vite2 和 Vite3 请使用 1.x。
+
 ## 安装 ❤️
 
 ```shell
