@@ -20,10 +20,13 @@
     "url": "https://github.com/shixuanhong/vite-plugin-css-export.git"
   },
   "scripts": {
-    "dev": "vite example",
-    "build": "vue-tsc --noEmit && vite build example",
+    "dev": "vite example/vue",
+    "dev:svelte": "vite example/svelte",
+    "build": "vite build example/vue",
+    "build:svelte": "vite build example/svelte",
     "build:lib": "unbuild",
-    "preview": "vite preview example",
+    "preview": "vite preview example/vue",
+    "preview:svelte": "vite preview example/svelte",
     "test": "jest test",
     "publish:lib": "unbuild && npm publish"
   },

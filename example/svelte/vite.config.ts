@@ -1,15 +1,21 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 import Inspect from 'vite-plugin-inspect'
-import { default as ViteCSSExportPlugin, kebabCaseToUpperCamelCase } from '../src'
+import {
+  default as ViteCSSExportPlugin,
+  kebabCaseToUpperCamelCase
+} from '../../src'
 import path from 'node:path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
+    svelte(),
     ViteCSSExportPlugin({
       shouldTransform(id) {
-        const include = path.resolve(process.cwd(), 'example/assets/style/share-to-js')
+        const include = path.resolve(
+          process.cwd(),
+          'example/svelte/src/assets/style/share-to-js'
+        )
         return path.resolve(id).indexOf(include) > -1
       },
       additionalData: {
@@ -20,7 +26,7 @@ export default defineConfig({
       cssModule: {
         isGlobalCSSModule: false,
         enableExportMerge: true,
-        sharedDataExportName: 'cssExportedData',
+        sharedDataExportName: 'cssExportedData'
       },
       propertyNameTransformer: kebabCaseToUpperCamelCase
     }),
