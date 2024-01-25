@@ -12,10 +12,7 @@ export default defineConfig({
     vue(),
     ViteCSSExportPlugin({
       shouldTransform(id) {
-        const include = path.resolve(
-          process.cwd(),
-          'example/vue/assets/style/share-to-js'
-        )
+        const include = path.resolve(process.cwd(), 'example/style/share-to-js')
         return path.resolve(id).indexOf(include) > -1
       },
       additionalData: {
