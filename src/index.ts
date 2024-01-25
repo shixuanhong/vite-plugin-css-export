@@ -1,7 +1,11 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { dataToEsm } from '@rollup/pluginutils'
 import { parse } from 'postcss'
-import { drillDown, clearExportNamedDeclaration } from './utils'
+import {
+  drillDown,
+  clearExportNamedDeclaration,
+  isSourceDescription
+} from './utils'
 import type {
   CSSModuleOptions,
   ViteCSSExportPluginOptions,
@@ -9,11 +13,7 @@ import type {
   ParseResult
 } from './interface'
 import type { Program } from 'estree'
-import type {
-  TransformPluginContext,
-  TransformResult,
-  SourceDescription
-} from 'rollup'
+import type { TransformPluginContext, TransformResult } from 'rollup'
 import escodegen from 'escodegen'
 
 export { CSSModuleOptions, ViteCSSExportPluginOptions, SharedCSSData }
@@ -150,41 +150,43 @@ function vitePostCodeHandler(
     enableExportMerge = false,
     sharedDataExportName = 'sharedData'
   } = cssModuleOptions
-  const ast = this.parse(code) as Program
   const parseResult = parseResultCache.get(id)
-  let sharedAst = this.parse(
-    dataToEsm(parseResult.sharedData, {
-      namedExports: true,
-      preferConst: true
-    })
-  )
-
-  // compatible with css module
-  if (cssModuleRE.test(id) || isGlobalCSSModule) {
-    if (enableExportMerge && !inlineRE.test(id)) {
-      return code.replace(
-        /export default\s*\{/,
-        [
-          `export const ${sharedDataExportName} = ${JSON.stringify(
-            parseResult.sharedData
-          )}`,
-          `export default { ${sharedDataExportName},`
-        ].join('\n')
-      )
-    } else {
-      // override
-      // clear all named exports, exclude /^__vite__/
-      clearExportNamedDeclaration(ast, /^__vite__/)
+  const sharedDataStr = dataToEsm(parseResult.sharedData, {
+    namedExports: true,
+    preferConst: true
+  })
+  let sharedAst = this.parse(sharedDataStr)
+  if (typeof code === 'string' && code !== '') {
+    const ast = this.parse(code) as Program
+    // compatible with css module
+    if (cssModuleRE.test(id) || isGlobalCSSModule) {
+      if (enableExportMerge && !inlineRE.test(id)) {
+        return code.replace(
+          /export default\s*\{/,
+          [
+            `export const ${sharedDataExportName} = ${JSON.stringify(
+              parseResult.sharedData
+            )}`,
+            `export default { ${sharedDataExportName},`
+          ].join('\n')
+        )
+      } else {
+        // override
+        // clear all named exports, exclude /^__vite__/
+        clearExportNamedDeclaration(ast, /^__vite__/)
+      }
     }
-  }
-  // remove the original default export
-  const defaultIndex = ast.body.findIndex(
-    (item: { type: string }) => item.type === 'ExportDefaultDeclaration'
-  )
-  defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
-  ast.body = ast.body.concat(sharedAst.body)
+    // remove the original default export
+    const defaultIndex = ast.body.findIndex(
+      (item: { type: string }) => item.type === 'ExportDefaultDeclaration'
+    )
+    defaultIndex > -1 && ast.body.splice(defaultIndex, 1)
+    ast.body = ast.body.concat(sharedAst.body)
 
-  return escodegen.generate(ast)
+    return escodegen.generate(ast)
+  } else {
+    return sharedDataStr
+  }
 }
 
 function hijackCSSPostPlugin(
@@ -204,11 +206,11 @@ function hijackCSSPostPlugin(
       )) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
       if (isCSSRequest(id) && isTransform(id)) {
-        if (typeof result !== 'string' && (result as SourceDescription).code) {
-          ;(result as SourceDescription).code = vitePostCodeHandler.call(
+        if (isSourceDescription(result)) {
+          result.code = vitePostCodeHandler.call(
             this,
             id,
-            (result as SourceDescription).code,
+            result.code,
             cssModuleOptions,
             parseResultCache
           )

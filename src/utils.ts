@@ -1,5 +1,6 @@
 import type { Program, Identifier, VariableDeclarator } from 'estree'
 import { simple } from 'acorn-walk'
+import { SourceDescription, TransformResult } from 'rollup'
 
 export const drillDown = (obj: any, keys: Array<string>): any => {
   if (!obj) {
@@ -43,4 +44,9 @@ export function clearExportNamedDeclaration(
     }
   })
   ast.body = ast.body.filter((item) => filteredNodeList.indexOf(item) === -1)
+}
+export function isSourceDescription(
+  obj: TransformResult
+): obj is SourceDescription {
+  return typeof obj !== 'string' && typeof obj.code !== 'undefined'
 }
