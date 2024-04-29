@@ -1,6 +1,7 @@
 import type { Program, Identifier, VariableDeclarator } from 'estree'
 import { simple } from 'acorn-walk'
 import { SourceDescription, TransformResult } from 'rollup'
+import { Plugin } from 'vite'
 
 export const drillDown = (obj: any, keys: Array<string>): any => {
   if (!obj) {
@@ -48,5 +49,13 @@ export function clearExportNamedDeclaration(
 export function isSourceDescription(
   obj: TransformResult
 ): obj is SourceDescription {
-  return typeof obj !== 'string' && typeof obj.code !== 'undefined'
+  return obj && typeof obj !== 'string' && typeof obj.code !== 'undefined'
+}
+
+export function getPluginTransformHandler(transform: Plugin['transform']) {
+  if (typeof transform === 'function') {
+    return transform
+  } else {
+    return transform.handler
+  }
 }

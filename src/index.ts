@@ -4,7 +4,8 @@ import { parse } from 'postcss'
 import {
   drillDown,
   clearExportNamedDeclaration,
-  isSourceDescription
+  isSourceDescription,
+  getPluginTransformHandler
 } from './utils'
 import type {
   CSSModuleOptions,
@@ -196,33 +197,35 @@ function hijackCSSPostPlugin(
   parseResultCache: Map<string, ParseResult>
 ): void {
   if (cssPostPlugin.transform) {
-    const _transform = cssPostPlugin.transform as Function
-    cssPostPlugin.transform = async function (this: any, ...args: any[]) {
+    const _transform = getPluginTransformHandler(cssPostPlugin.transform)
+    cssPostPlugin.transform = async function (this, ...args) {
       const id = args[1]
       // result of vite:post
-      const result = (await _transform.apply(
-        this,
-        args as any
-      )) as TransformResult
+      const result = (await _transform.apply(this, args)) as TransformResult
       // this result will be modified if the conditions of vite:css-export are met.
       if (isCSSRequest(id) && isTransform(id)) {
+        let code
         if (isSourceDescription(result)) {
-          result.code = vitePostCodeHandler.call(
+          code = vitePostCodeHandler.call(
             this,
             id,
             result.code,
             cssModuleOptions,
             parseResultCache
           )
-          return result
         } else {
-          return vitePostCodeHandler.call(
+          code = vitePostCodeHandler.call(
             this,
             id,
             result as string,
             cssModuleOptions,
             parseResultCache
           )
+        }
+        return {
+          code,
+          map: { mappings: '' },
+          moduleSideEffects: false
         }
       } else {
         return result
@@ -255,7 +258,7 @@ export default function ViteCSSExportPlugin(
     name: pluginName,
     configResolved(resolvedConfig) {
       config = resolvedConfig
-      const cssPostPlugin = (<Array<any>>config.plugins).find(
+      const cssPostPlugin = config.plugins.find(
         (item) => item.name === 'vite:css-post'
       )
       cssPostPlugin &&
