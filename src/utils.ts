@@ -2,6 +2,7 @@ import type { Program, Identifier, VariableDeclarator } from 'estree'
 import { simple } from 'acorn-walk'
 import { SourceDescription, TransformResult } from 'rollup'
 import { Plugin } from 'vite'
+import { makeLegalIdentifier } from '@rollup/pluginutils'
 
 export const drillDown = (obj: any, keys: Array<string>): any => {
   if (!obj) {
@@ -58,4 +59,10 @@ export function getPluginTransformHandler(transform: Plugin['transform']) {
   } else {
     return transform.handler
   }
+}
+
+export function getCSSVirtualId(id: string) {
+  const [filename] = id.split('?')
+  const cssVirtualId = `${makeLegalIdentifier(filename)}?lang.css`
+  return cssVirtualId
 }

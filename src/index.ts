@@ -5,13 +5,14 @@ import {
   drillDown,
   clearExportNamedDeclaration,
   isSourceDescription,
-  getPluginTransformHandler
+  getPluginTransformHandler,
+  getCSSVirtualId
 } from './utils'
 import type {
   CSSModuleOptions,
   ViteCSSExportPluginOptions,
   SharedCSSData,
-  ParseResult
+  ParsedResult
 } from './interface'
 import type { Program } from 'estree'
 import type { TransformPluginContext, TransformResult } from 'rollup'
@@ -72,13 +73,13 @@ const isTransform = (id: string): boolean =>
  *
  * @param {TransformPluginContext} this
  * @param {string} cssCode
- * @return {ParseResult}
+ * @return {ParsedResult}
  */
 function parseCode(
   this: TransformPluginContext,
   cssCode: string,
   propertyNameTransformer?: (key: string) => string
-): ParseResult {
+): ParsedResult {
   const sharedData: SharedCSSData = {}
   let otherCode = ''
 
@@ -136,7 +137,7 @@ function parseCode(
   return {
     sharedData,
     otherCode
-  } as ParseResult
+  } as ParsedResult
 }
 
 function vitePostCodeHandler(
@@ -144,15 +145,18 @@ function vitePostCodeHandler(
   id: string,
   code: string,
   cssModuleOptions: CSSModuleOptions,
-  parseResultCache: Map<string, ParseResult>
+  parsedResultCache: Map<string, ParsedResult>
 ): string {
   const {
     isGlobalCSSModule = false,
     enableExportMerge = false,
     sharedDataExportName = 'sharedData'
   } = cssModuleOptions
-  const parseResult = parseResultCache.get(id)
-  const sharedDataStr = dataToEsm(parseResult.sharedData, {
+  if (!parsedResultCache.has(id)) {
+    return ''
+  }
+  const parsedResult = parsedResultCache.get(id)
+  const sharedDataStr = dataToEsm(parsedResult.sharedData, {
     namedExports: true,
     preferConst: true
   })
@@ -166,7 +170,7 @@ function vitePostCodeHandler(
           /export default\s*\{/,
           [
             `export const ${sharedDataExportName} = ${JSON.stringify(
-              parseResult.sharedData
+              parsedResult.sharedData
             )}`,
             `export default { ${sharedDataExportName},`
           ].join('\n')
@@ -194,41 +198,54 @@ function hijackCSSPostPlugin(
   cssPostPlugin: Plugin,
   config: ResolvedConfig,
   cssModuleOptions: CSSModuleOptions,
-  parseResultCache: Map<string, ParseResult>
+  parsedResultCache: Map<string, ParsedResult>,
+  codeCacheMap: Map<string, string>
 ): void {
   if (cssPostPlugin.transform) {
     const _transform = getPluginTransformHandler(cssPostPlugin.transform)
     cssPostPlugin.transform = async function (this, ...args) {
-      const id = args[1]
-      // result of vite:post
-      const result = (await _transform.apply(this, args)) as TransformResult
-      // this result will be modified if the conditions of vite:css-export are met.
+      const [cssCode, id, ...restArgs] = args
       if (isCSSRequest(id) && isTransform(id)) {
-        let code
+        const { isGlobalCSSModule = false } = cssModuleOptions
+        // result of vite:post
+        // this result will be modified if the conditions of vite:css-export are met.
+        let result: TransformResult = ''
+        if (cssModuleRE.test(id) || isGlobalCSSModule) {
+          result = await _transform.apply(this, ['', id, ...restArgs])
+        }
+        let jsCode
         if (isSourceDescription(result)) {
-          code = vitePostCodeHandler.call(
+          jsCode = vitePostCodeHandler.call(
             this,
             id,
             result.code,
             cssModuleOptions,
-            parseResultCache
+            parsedResultCache
           )
         } else {
-          code = vitePostCodeHandler.call(
+          jsCode = vitePostCodeHandler.call(
             this,
             id,
             result as string,
             cssModuleOptions,
-            parseResultCache
+            parsedResultCache
           )
         }
+        const output = []
+        if (!inlineRE.test(id)) {
+          const cssVirtualId = getCSSVirtualId(id)
+          codeCacheMap.set(cssVirtualId, cssCode)
+          output.push(`import "${cssVirtualId}"`)
+        }
+        output.push(jsCode)
+
         return {
-          code,
+          code: output.join('\n'),
           map: { mappings: '' },
           moduleSideEffects: false
         }
       } else {
-        return result
+        return await _transform.apply(this, args)
       }
     }
   }
@@ -252,7 +269,8 @@ export default function ViteCSSExportPlugin(
 
   shouldTransform = _shouldTransform
 
-  const parseResultCache = new Map<string, ParseResult>()
+  const parsedResultCache = new Map<string, ParsedResult>()
+  const codeCacheMap = new Map<string, string>()
   let config
   return {
     name: pluginName,
@@ -262,20 +280,37 @@ export default function ViteCSSExportPlugin(
         (item) => item.name === 'vite:css-post'
       )
       cssPostPlugin &&
-        hijackCSSPostPlugin(cssPostPlugin, config, cssModule, parseResultCache)
+        hijackCSSPostPlugin(
+          cssPostPlugin,
+          config,
+          cssModule,
+          parsedResultCache,
+          codeCacheMap
+        )
     },
     buildStart() {
-      parseResultCache.clear()
+      codeCacheMap.clear()
+      parsedResultCache.clear()
+    },
+    resolveId(id) {
+      if (codeCacheMap.has(id)) {
+        return id
+      }
+    },
+    load(id, options) {
+      if (codeCacheMap.has(id)) {
+        return codeCacheMap.get(id) ?? ''
+      }
     },
     async transform(code, id, _options) {
       if (isCSSRequest(id) && isTransform(id)) {
-        const parseResult = parseCode.call(this, code, propertyNameTransformer)
+        const parsedResult = parseCode.call(this, code, propertyNameTransformer)
         // append additionalData
-        Object.assign(parseResult.sharedData, additionalData)
-        // cache the current parseResult for use in vite:post
-        parseResultCache.set(id, parseResult)
+        Object.assign(parsedResult.sharedData, additionalData)
+        // cache the current parsedResult for use in vite:post
+        parsedResultCache.set(id, parsedResult)
         return {
-          code: parseResult.otherCode,
+          code: parsedResult.otherCode,
           map: { mappings: '' }
         }
       }

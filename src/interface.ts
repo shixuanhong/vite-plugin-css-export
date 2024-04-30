@@ -67,7 +67,7 @@ export interface SharedCSSData {
   [key: string]: SharedCSSData | string
 }
 
-export interface ParseResult {
+export interface ParsedResult {
   /**
    * Data shared with JavaScript.
    *
