@@ -203,7 +203,7 @@ function hijackCSSPostPlugin(
 ): void {
   if (cssPostPlugin.transform) {
     const _transform = getPluginTransformHandler(cssPostPlugin.transform)
-    cssPostPlugin.transform = async function (this, ...args) {
+    cssPostPlugin.transform = async function (...args) {
       const [cssCode, id, ...restArgs] = args
       if (isCSSRequest(id) && isTransform(id)) {
         const { isGlobalCSSModule = false } = cssModuleOptions
@@ -242,7 +242,7 @@ function hijackCSSPostPlugin(
         return {
           code: output.join('\n'),
           map: { mappings: '' },
-          moduleSideEffects: false
+          moduleSideEffects: true
         }
       } else {
         return await _transform.apply(this, args)
