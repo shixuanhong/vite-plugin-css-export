@@ -1,4 +1,4 @@
-import type { Plugin, ResolvedConfig } from 'vite'
+import type { Plugin } from 'vite'
 import { dataToEsm } from '@rollup/pluginutils'
 import { parse } from 'postcss'
 import {
@@ -7,7 +7,7 @@ import {
   isSourceDescription,
   getPluginTransformHandler,
   setPluginTransformHandler,
-  getCSSVirtualId,
+  getCSSVirtualId
 } from './utils'
 import type {
   CSSModuleOptions,
@@ -167,12 +167,14 @@ function vitePostCodeHandler(
     // compatible with css module
     if (cssModuleRE.test(id) || isGlobalCSSModule) {
       if (enableExportMerge && !inlineRE.test(id)) {
+        const sharedDataValue = dataToEsm(parsedResult.sharedData, {
+          namedExports: false,
+          preferConst: true
+        }).replace('export default ', '')
         return code.replace(
           /export default\s*\{/,
           [
-            `export const ${sharedDataExportName} = ${JSON.stringify(
-              parsedResult.sharedData
-            )}`,
+            `export const ${sharedDataExportName} = ${sharedDataValue}`,
             `export default { ${sharedDataExportName},`
           ].join('\n')
         )
@@ -203,53 +205,50 @@ function hijackCSSPostPlugin(
 ): void {
   if (cssPostPlugin.transform) {
     const _transform = getPluginTransformHandler(cssPostPlugin.transform)
-    setPluginTransformHandler(
-      cssPostPlugin,
-      async function (...args) {
-        const [cssCode, id, ...restArgs] = args
-        if (isCSSRequest(id) && isTransform(id)) {
-          const { isGlobalCSSModule = false } = cssModuleOptions
-          // result of vite:post
-          // this result will be modified if the conditions of vite:css-export are met.
-          let result: TransformResult = ''
-          if (cssModuleRE.test(id) || isGlobalCSSModule) {
-            result = await _transform.apply(this, ['', id, ...restArgs])
-          }
-          let jsCode
-          if (isSourceDescription(result)) {
-            jsCode = vitePostCodeHandler.call(
-              this,
-              id,
-              result.code,
-              cssModuleOptions,
-              parsedResultCache
-            )
-          } else {
-            jsCode = vitePostCodeHandler.call(
-              this,
-              id,
-              result as string,
-              cssModuleOptions,
-              parsedResultCache
-            )
-          }
-          const output = []
-          if (!inlineRE.test(id)) {
-            const cssVirtualId = getCSSVirtualId(id)
-            codeCacheMap.set(cssVirtualId, cssCode)
-            output.push(`import "${cssVirtualId}"`)
-          }
-          output.push(jsCode)
-
-          return {
-            code: output.join('\n'),
-            map: { mappings: '' },
-            moduleSideEffects: true
-          }
+    setPluginTransformHandler(cssPostPlugin, async function (...args) {
+      const [cssCode, id, ...restArgs] = args
+      if (isCSSRequest(id) && isTransform(id)) {
+        const { isGlobalCSSModule = false } = cssModuleOptions
+        // result of vite:post
+        // this result will be modified if the conditions of vite:css-export are met.
+        let result: TransformResult = ''
+        if (cssModuleRE.test(id) || isGlobalCSSModule) {
+          result = await _transform.apply(this, ['', id, ...restArgs])
         }
-        return await _transform.apply(this, args)
+        let jsCode
+        if (isSourceDescription(result)) {
+          jsCode = vitePostCodeHandler.call(
+            this,
+            id,
+            result.code,
+            cssModuleOptions,
+            parsedResultCache
+          )
+        } else {
+          jsCode = vitePostCodeHandler.call(
+            this,
+            id,
+            result as string,
+            cssModuleOptions,
+            parsedResultCache
+          )
+        }
+        const output = []
+        if (!inlineRE.test(id)) {
+          const cssVirtualId = getCSSVirtualId(id)
+          codeCacheMap.set(cssVirtualId, cssCode)
+          output.push(`import "${cssVirtualId}"`)
+        }
+        output.push(jsCode)
+
+        return {
+          code: output.join('\n'),
+          map: { mappings: '' },
+          moduleSideEffects: true
+        }
       }
-    )
+      return await _transform.apply(this, args)
+    })
   }
 }
 

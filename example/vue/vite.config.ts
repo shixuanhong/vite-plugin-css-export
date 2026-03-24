@@ -1,3 +1,4 @@
+import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Inspect from 'vite-plugin-inspect'
@@ -9,6 +10,7 @@ import path from 'node:path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    DevTools(),
     vue(),
     ViteCSSExportPlugin({
       shouldTransform(id) {
